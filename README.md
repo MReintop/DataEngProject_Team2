@@ -30,7 +30,8 @@ Mariam : Airflow + postgres project. I willl try.
 Heidi : Remove duplicates.
 Mart : Mart gathers the data we keep
 Kertu: Uploads the data into the database.
-Vera: 
+Vera: Date formatting and also help with summary of columns with python
+statics and unique words for tags
 
 
  A second pipeline where data are loaded into an ingestion system and then cleaned and processed :
@@ -38,9 +39,8 @@ Vera:
 ---- part 2
 1. Filter only category : Memes TAGS : Memes have content tags and additional referrences.
 2. Remove memes with bad words. "Sensitive tag in the data ? Or NSFW!"
-3. Remove duplicates.
-4. Date into a readable date?
-5. Uniforming structure.
+4. Date into a readable date? They might not all be the same.
+5. Uniforming structure. 
 6. Search keywords meaning? https://www.wikidata.org/wiki/Property:P646 Filter those to readable data ? 
 7. We need to upload the data here ? No we need to make airflow project and open the data there. 
 8.uniforming content structure, e.g, clustering similar tags
