@@ -19,7 +19,7 @@ Next meeting will be 15.10 at 19:30.
 
 1.week schedule (22.10)
 COLUMNS WE DO NOT NEED (Duplicates and not informative ones): 
-  Heidi will maybe make a file with the columns :
+  Heidi will maybe make a file with the columns : https://docs.google.com/spreadsheets/d/1jWBTh5St-vOnWT7O3VP2jGK0lJSdr-hh/edit?usp=sharing&ouid=108325435939815487261&rtpof=true&sd=true
 
 Lets conclude with this then. Everyone downvote the columns. Yes
 
