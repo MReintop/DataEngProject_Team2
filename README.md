@@ -34,6 +34,7 @@ Kertu: Uploads the data into the database.
 Vera: Date formatting and also help with summary of columns with python
 statics and unique words for tags
 
+# We need to define the relations betweeen memes , how is useful to store then?
 
  A second pipeline where data are loaded into an ingestion system and then cleaned and processed :
 
