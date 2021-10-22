@@ -74,6 +74,10 @@ Natural language analyses will be provided to be implemented at point 3 and 5, a
 
 Next session : 22.10 19:30
 
+Worked on this : 
+https://docs.google.com/spreadsheets/d/1jWBTh5St-vOnWT7O3VP2jGK0lJSdr-hh/edit#gid=2063405520
+
+Next session : 29.10 19:30
 
 ## Requirements
 
