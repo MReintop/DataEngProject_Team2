@@ -34,8 +34,6 @@ Kertu: Uploads the data into the database.
 Vera: Date formatting and also help with summary of columns with python
 statics and unique words for tags
 
-# We need to define the relations betweeen memes , how is useful to store then?
-
  A second pipeline where data are loaded into an ingestion system and then cleaned and processed :
 
 ---- part 2
@@ -46,6 +44,9 @@ statics and unique words for tags
 6. Search keywords meaning? https://www.wikidata.org/wiki/Property:P646 Filter those to readable data ? 
 7. We need to upload the data here ? No we need to make airflow project and open the data there. 
 8.uniforming content structure, e.g, clustering similar tags
+* We need to define the relations betweeen memes , how is useful to store then?
+* Also map urls to IDs
+* Add parent to each meme and they are Ids
 ...
 -----
 Lets cleanse first.
@@ -53,9 +54,9 @@ Lets cleanse first.
 
 Questions :
 
-How to remove first high-level duplicates?
-Is ld (LD) necessary?
-What does positio mean? List for subcultures? Categories?
+How to remove first high-level duplicates? Got it
+Is ld (LD) necessary? NO
+What does positio mean? List for subcultures? Categories? Not needed
 Queries in two different query languages. What is the deal with this? How do we convert ?
 
 
