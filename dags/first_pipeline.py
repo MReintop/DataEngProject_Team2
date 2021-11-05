@@ -47,7 +47,7 @@ task_one = PythonOperator(
 )
 
 # select only category memes and delete high level duplicates
-def _sel_features(epoch: int, output_folder: str):
+def _sel_instances(epoch: int, output_folder: str):
     df = pd.read_json(f'{output_folder}/{str(epoch)}.json')
     df_memes = df[df.category=="Meme"]
     df_memes_filtered=df_memes.drop_duplicates(subset='title', keep='first')
@@ -57,7 +57,7 @@ def _sel_features(epoch: int, output_folder: str):
 task_two = PythonOperator(
     task_id='select_rows', 
     dag=first_pipeline,
-    python_callable=_sel_features,
+    python_callable=_sel_instances,
     op_kwargs={
         "output_folder": "/opt/airflow/dags",
         "epoch": "{{ execution_date.int_timestamp }}"
@@ -118,6 +118,18 @@ task_seven = DummyOperator(
 # remove sensitive/impropriate data
 task_eight = DummyOperator(
     task_id='remove_nsfw',
+    dag=first_pipeline,
+    trigger_rule='none_failed'
+)
+
+task_nine = DummyOperator(
+    task_id='create_sql',
+    dag=first_pipeline,
+    trigger_rule='none_failed'
+)
+
+task_ten = DummyOperator(
+    task_id='insert_to_db',
     dag=first_pipeline,
     trigger_rule='none_failed'
 )

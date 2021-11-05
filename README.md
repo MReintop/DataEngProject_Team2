@@ -34,6 +34,30 @@ Kertu: Uploads the data into the database.
 Vera: Date formatting and also help with summary of columns with python
 statics and unique words for tags
 
+05.11 Implementation of First pipeline in Airflow:
+https://github.com/MReintop/DataEngProject_Team2/blob/main/dags/first_pipeline.py
+
+Tasks divided between members, so basically everyone finilize his/her work and replaces the DummyOperators in pipeline:
+- task_one: PythonOperator: get_source_file: **Heidi**
+- task_two: PythonOperator: select_rows: **Heidi**
+- task_three: PythonOperator: select_new_memes: skip currently
+- task_four: BranchPythonOperator: emptiness_check: **Heidi**
+- task_five: PythonOperator: select_features: **Mart**
+- task_six: PythonOperator:format_time: **Vera**
+- task_seven: PythonOperator:remove_nsfw: **Mariam**
+- task_eight: PythonOperator:remove_nsfw: **Heidi**
+- task_nine: PythonOperator: create_sql: **Kertu**
+- task_ten: PostgresOperator: insert_to_db: **Kertu**
+
+**Important Question**: Where to store the intermediate file? In Airflow DB?
+
+Other conclusions:
+- Importing data from source file and cleansing in one pipeline.
+- In second pipeline maybe to create logical views and augment the data?
+- Next time the first pipeline will be reviewed and next pipeline discussed.
+
+Next meeting 12.11 19:30
+
  A second pipeline where data are loaded into an ingestion system and then cleaned and processed :
 
 ---- part 2
