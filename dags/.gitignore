@@ -1,5 +1,9 @@
 *.sql
 *.csv
 *.xlsx
+*.log
+*.idea
+
+/logs/*
 *~
 __pycache__
