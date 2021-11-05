@@ -63,10 +63,10 @@ Next meeting 12.11 19:30
 ---- part 2
 1. Filter only category : Memes TAGS : Memes have content tags and additional referrences.
 2. Remove memes with bad words. "Sensitive tag in the data ? Or NSFW!"
-4. Date into a readable date? They might not all be the same.
-5. Uniforming structure. 
-6. Search keywords meaning? https://www.wikidata.org/wiki/Property:P646 Filter those to readable data ? 
-7. We need to upload the data here ? No we need to make airflow project and open the data there. 
+3. Date into a readable date? They might not all be the same.
+4. Uniforming structure. 
+5. Search keywords meaning? https://www.wikidata.org/wiki/Property:P646 Filter those to readable data ? 
+6. We need to upload the data here ? No we need to make airflow project and open the data there. 
 8.uniforming content structure, e.g, clustering similar tags
 * We need to define the relations betweeen memes , how is useful to store then?
 * Also map urls to IDs
@@ -78,10 +78,10 @@ Lets cleanse first.
 
 Questions :
 
-How to remove first high-level duplicates? Got it
-Is ld (LD) necessary? NO
-What does positio mean? List for subcultures? Categories? Not needed
-Queries in two different query languages. What is the deal with this? How do we convert ?
+- How to remove first high-level duplicates? Got it
+- Is ld (LD) necessary? NO
+- What does positio mean? List for subcultures? Categories? Not needed
+- Queries in two different query languages. What is the deal with this? How do we convert ?
 
 
 Query ideas :
@@ -90,18 +90,12 @@ How many different origins and which are the most popular means from these origi
 Can we though?
 
 
-
  A third pipeline where a relational view is built on the data to perform some analysis
  A fourth pipeline where data are enriched (use your creativity)
  A fifth pipeline where a graph view is built on the data to facilitate some analysis
 Natural language analyses will be provided to be implemented at point 3 and 5, a base example using the images (which are not stored) will be included in 4
 
-Next session : 22.10 19:30
 
-Worked on this : 
-https://docs.google.com/spreadsheets/d/1jWBTh5St-vOnWT7O3VP2jGK0lJSdr-hh/edit#gid=2063405520
-
-Next session : 29.10 19:30
 
 ## Requirements
 
