@@ -34,15 +34,46 @@ Kertu: Uploads the data into the database.
 Vera: Date formatting and also help with summary of columns with python
 statics and unique words for tags
 
+Next session : 22.10 19:30
+
+Worked on this : 
+https://docs.google.com/spreadsheets/d/1jWBTh5St-vOnWT7O3VP2jGK0lJSdr-hh/edit#gid=2063405520
+
+Next session : 29.10 19:30
+
+05.11 Implementation of First pipeline in Airflow:
+https://github.com/MReintop/DataEngProject_Team2/blob/main/dags/first_pipeline.py
+
+Tasks divided between members, so basically everyone finilize his/her work and replaces the DummyOperators in pipeline:
+- task_one: PythonOperator: get_source_file: **Heidi**
+- task_two: PythonOperator: select_rows: **Heidi**
+- task_three: PythonOperator: select_new_memes: skip currently
+- task_four: BranchPythonOperator: emptiness_check: **Heidi**
+- task_five: PythonOperator: select_features: **Mart**
+- task_six: PythonOperator:format_time: **Vera**
+- task_seven: PythonOperator:remove_nsfw: **Mariam**
+- task_eight: PythonOperator:remove_nsfw: **Heidi**
+- task_nine: PythonOperator: create_sql: **Kertu**
+- task_ten: PostgresOperator: insert_to_db: **Kertu**
+
+**Important Question**: Where to store the intermediate file? In Airflow DB?
+
+Other conclusions:
+- Importing data from source file and cleansing in one pipeline.
+- In second pipeline maybe to create logical views and augment the data?
+- Next time the first pipeline will be reviewed and next pipeline discussed.
+
+Next meeting 12.11 19:30
+
  A second pipeline where data are loaded into an ingestion system and then cleaned and processed :
 
 ---- part 2
 1. Filter only category : Memes TAGS : Memes have content tags and additional referrences.
 2. Remove memes with bad words. "Sensitive tag in the data ? Or NSFW!"
-4. Date into a readable date? They might not all be the same.
-5. Uniforming structure. 
-6. Search keywords meaning? https://www.wikidata.org/wiki/Property:P646 Filter those to readable data ? 
-7. We need to upload the data here ? No we need to make airflow project and open the data there. 
+3. Date into a readable date? They might not all be the same.
+4. Uniforming structure. 
+5. Search keywords meaning? https://www.wikidata.org/wiki/Property:P646 Filter those to readable data ? 
+6. We need to upload the data here ? No we need to make airflow project and open the data there. 
 8.uniforming content structure, e.g, clustering similar tags
 * We need to define the relations betweeen memes , how is useful to store then?
 * Also map urls to IDs
@@ -54,10 +85,10 @@ Lets cleanse first.
 
 Questions :
 
-How to remove first high-level duplicates? Got it
-Is ld (LD) necessary? NO
-What does positio mean? List for subcultures? Categories? Not needed
-Queries in two different query languages. What is the deal with this? How do we convert ?
+- How to remove first high-level duplicates? Got it
+- Is ld (LD) necessary? NO
+- What does positio mean? List for subcultures? Categories? Not needed
+- Queries in two different query languages. What is the deal with this? How do we convert ?
 
 
 Query ideas :
@@ -66,18 +97,12 @@ How many different origins and which are the most popular means from these origi
 Can we though?
 
 
-
  A third pipeline where a relational view is built on the data to perform some analysis
  A fourth pipeline where data are enriched (use your creativity)
  A fifth pipeline where a graph view is built on the data to facilitate some analysis
 Natural language analyses will be provided to be implemented at point 3 and 5, a base example using the images (which are not stored) will be included in 4
 
-Next session : 22.10 19:30
 
-Worked on this : 
-https://docs.google.com/spreadsheets/d/1jWBTh5St-vOnWT7O3VP2jGK0lJSdr-hh/edit#gid=2063405520
-
-Next session : 29.10 19:30
 
 ## Requirements
 
