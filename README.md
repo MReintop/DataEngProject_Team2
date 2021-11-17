@@ -1,13 +1,14 @@
 # DataEngProject_Team2
 
-09.10
+**Meeting 09.10**
 
 Familiarize yourself with the data.
 Come up with different end queries which would be intereting to present. 1-5 per person.
 Next meeting will be 15.10 at 19:30.
 
 
-15.10
+**Meeting 15.10**
+
  An initial pipeline where data are loaded from file this is part one  (provided) and cleaned this is second : 
 1. Create airflow project with postgres db.
 2. Remove duplicates while importing data. MEMORY IS EXPENSIVE
@@ -15,7 +16,7 @@ Next meeting will be 15.10 at 19:30.
 4. Load the file into the database. NO JSON
 5. If needed we can make many tables.
 
-19.10 Add all the columns here we do not want to keep
+**Meeting 19.10 Add all the columns here we do not want to keep**
 
 1.week schedule (22.10)
 COLUMNS WE DO NOT NEED (Duplicates and not informative ones): 
@@ -34,7 +35,8 @@ Kertu: Uploads the data into the database.
 Vera: Date formatting and also help with summary of columns with python
 statics and unique words for tags
 
-05.11 Implementation of First pipeline in Airflow:
+**Meeting 05.11 Implementation of First pipeline in Airflow:**
+
 https://github.com/MReintop/DataEngProject_Team2/blob/main/dags/first_pipeline.py
 
 Tasks divided between members, so basically everyone finilize his/her work and replaces the DummyOperators in pipeline:
@@ -56,7 +58,14 @@ Other conclusions:
 - In second pipeline maybe to create logical views and augment the data?
 - Next time the first pipeline will be reviewed and next pipeline discussed.
 
-Next meeting 12.11 19:30
+**Meeting 12.11 19:30 Work is going on..**
+
+- we reviewed how far everybody are
+- Mariam showed her code, not added to pipeline as waiting for previous input
+- Kertu, Vera and Heidi have also done code but waiting for previous input
+- Mart needed help to finish his work. We discussed how he should proceed and agreed to review the work after next Tuesday.
+
+Next time 19.11 19:30 ?
 
  A second pipeline where data are loaded into an ingestion system and then cleaned and processed :
 

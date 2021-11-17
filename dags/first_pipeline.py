@@ -144,5 +144,5 @@ end = DummyOperator(
 # order of tasks
 task_one >> task_two >> task_three >> task_four 
 task_four >> [task_five,end] 
-task_five >> task_six >> task_seven >> task_eight
-[task_four,task_eight] >> end
+task_five >> task_six >> task_seven >> task_eight >> task_nine >> task_ten
+[task_four,task_ten] >> end
