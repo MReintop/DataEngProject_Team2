@@ -1,0 +1,21 @@
+Week 1
+1) Familiarize with example tasks
+2) Raw data exploration
+  a) Find schema / data format
+
+Week 2
+3) Plan initial pipelines
+  a) Decide schemas for final dbs
+  b) Plan functions for data cleansing/preprocessing/wrangling
+  c) Decide how data is stored inbetween steps
+
+Weeks 3-5
+4) Build initial pipelines 
+  a) Implement data cleansing/preprocessing/wrangling
+  b) Insert data into a database
+  c) Insights from data / information extraction
+
+Weeks 6-7
+5) Test/confirm solutions
+6) Try to find further insights from data
+7) Presentation of insights 
