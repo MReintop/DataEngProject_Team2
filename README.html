@@ -113,7 +113,38 @@ statics and unique words for tags</p>
 <li>Kertu, Vera and Heidi have also done code but waiting for previous input</li>
 <li>Mart needed help to finish his work. We discussed how he should proceed and agreed to review the work after next Tuesday.</li>
 </ul>
-<p>Next time 19.11 19:30 ?</p>
+<p>Next time 19.11 19:30 ? We met on 22.11, then on 23.11 and on 25.11</p>
+<p><strong>Meeting 25.11.2021</strong></p>
+<p>Conclusions of last days:</p>
+<ul>
+<li>Execution in the airflow: failed where the json file is normalised.</li>
+<li>Lecturer adviced to normalize the json file before cleansing.</li>
+<li>DataFrame should be only once saved as csv.</li>
+<li>The first pipeline is for extracting data from source and sending to relational database.</li>
+<li>The second pipeline send data to graph database.</li>
+</ul>
+<p>New order of the tasks:</p>
+<ul>
+<li>Load json file.</li>
+<li>Check if file is empty.</li>
+<li>Normalise the json and select the features (data that we are interested into).</li>
+<li>Cleanse the data in pandas dataframe:
+<ul>
+<li>select only memes, delete duplicates and drop the category column;</li>
+<li>format time and other fields;</li>
+<li>remove the nsfw data;</li>
+<li>create the SQL;</li>
+<li>send data to relational DB.</li>
+</ul>
+</li>
+<li>End</li>
+</ul>
+<p>Next moves:</p>
+<ul>
+<li>solve the normalizing issue: Vera and Mart helps Heidi</li>
+<li>let's agree the next meeting time in chat</li>
+</ul>
+<hr>
 <p> A second pipeline where data are loaded into an ingestion system and then cleaned and processed :</p>
 <p>---- part 2</p>
 <ol>

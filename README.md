@@ -65,7 +65,35 @@ Other conclusions:
 - Kertu, Vera and Heidi have also done code but waiting for previous input
 - Mart needed help to finish his work. We discussed how he should proceed and agreed to review the work after next Tuesday.
 
-Next time 19.11 19:30 ?
+Next time 19.11 19:30 ? We met on 22.11, then on 23.11 and on 25.11
+
+**Meeting 25.11.2021**
+
+Conclusions of last days:
+- Execution in the airflow: failed where the json file is normalised.
+- Lecturer adviced to normalize the json file before cleansing.
+- DataFrame should be only once saved as csv. 
+- The first pipeline is for extracting data from source and sending to relational database.
+- The second pipeline send data to graph database.
+
+New order of the tasks:
+- Load json file.
+- Check if file is empty.
+- Normalise the json and select the features (data that we are interested into).
+- Cleanse the data in pandas dataframe:
+  - select only memes, delete duplicates and drop the category column;
+  - format time and other fields;
+  - remove the nsfw data;
+  - create the SQL;
+  - send data to relational DB.
+- End
+
+Next moves:
+
+- solve the normalizing issue: Vera and Mart helps Heidi
+- let's agree the next meeting time in chat
+
+-----
 
  A second pipeline where data are loaded into an ingestion system and then cleaned and processed :
 
@@ -83,6 +111,8 @@ Next time 19.11 19:30 ?
 ...
 -----
 Lets cleanse first.
+
+
 
 
 Questions :
