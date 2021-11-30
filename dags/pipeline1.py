@@ -1,6 +1,5 @@
 import airflow
 import datetime
-from datetime import datetime
 import urllib.request as request
 import pandas as pd
 from airflow import DAG
@@ -168,7 +167,7 @@ task_six = BranchPythonOperator(
 
 # convert epoch time to readable date time
 def format_time(col_name):
-   formatted_date_time=pd.to_datetime(col_name.apply(datetime.fromtimestamp))
+   formatted_date_time=pd.to_datetime(col_name.apply(datetime.datetime.fromtimestamp))
    return formatted_date_time
 
 def _format_fields(epoch: int, output_folder: str):
@@ -216,11 +215,22 @@ def tags(df):
 
 def _remove_nsfw(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
+    # indexes of nsfw
+    Tags_exploded = tags(df)
+    values = list(Tags_exploded[Tags_exploded.Tag.str.contains('nsfw')].index)
+    # drop rows that contain nsfw tag
+    df = df[df.index.isin(values) == False]
+    df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_filtered.csv',index=False)
     
-task_eight = DummyOperator(
+task_eight = PythonOperator(
     task_id='remove_nsfw',
     dag=pipeline1,
-    trigger_rule='none_failed'
+    python_callable=_remove_nsfw,
+    op_kwargs={
+        'epoch': '{{ execution_date.int_timestamp }}',
+        "output_folder": "/opt/airflow/dags"
+    },
+    trigger_rule='all_success',
 )
 
 ### T A S K _ N I N E
