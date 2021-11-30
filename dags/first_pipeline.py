@@ -7,6 +7,7 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator, BranchPythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.postgres_operator import PostgresOperator
+import json
 
 default_args_dict = {
     'start_date': datetime.datetime(2020, 6, 25, 0, 0, 0),
@@ -50,6 +51,65 @@ task_one = PythonOperator(
 
 
 ### T A S K _ T W O 
+# check if no new rows (if no new rows then go forward to the end)
+def _emptiness_check(previous_epoch: int, output_folder: str):
+    df = pd.read_json(f'{output_folder}/{str(previous_epoch)}.json')
+    length = len(df.index)
+    if length == 0:
+        return 'end'
+    else:
+        return 'select_data'
+
+
+task_four = BranchPythonOperator(
+    task_id='emptiness_check',
+    dag=first_pipeline,
+    python_callable=_emptiness_check,
+    op_kwargs={
+        'previous_epoch': '{{ prev_execution_date.int_timestamp }}',
+        "output_folder": "/opt/airflow/dags"
+    },
+    trigger_rule='all_success',
+)
+
+
+### T A S K _ T H R E E 
+# select only wanted data features, flatten the data
+def _select_data(epoch: int, output_folder: str):
+    with open(f'{output_folder}/{str(epoch)}.json','r') as f:
+        data = json.loads(f.read())
+    
+    
+    df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
+    title = df[['title']].rename({'title':'Title'})
+    url = df[['url']].rename({'url':'URL'})
+    last_update_source = df[['last_update_source']].rename({'last_update_source':'TimeUpdated'})
+    template_image_url = df[['template_image_url']].rename({'template_image_url':'Image'})
+    meta = _meta_to_df(df)
+    added = df[['added']].rename({'added':'TimeAdded'})
+    details = _details_to_df(df)
+    content = _content_to_df(df)
+    tags = df[['tags']].rename({'tags':'Tags'})
+    additional_references = df[['additional_references']].rename({'additional_references':'References'})
+    search_keywords = df[['search_keywords']]
+    parent = df[['parent']].rename({'parent':'Parent'})
+    df = pd.concat([title,url,last_update_source,template_image_url,meta,added,details,tags,additional_references,search_keywords,parent],axis=1) #df
+    df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_flattened.csv')
+
+task_five = PythonOperator(
+    task_id='select_data',
+    dag=first_pipeline,
+    python_callable=_select_data,
+    op_kwargs={
+        "output_folder": "/opt/airflow/dags",
+        "epoch": "{{ execution_date.int_timestamp }}"
+    },
+    trigger_rule='all_success',
+    depends_on_past=False,
+)
+
+# 
+
 # select only category memes and delete high level duplicates
 def _sel_instances(epoch: int, output_folder: str):
     df = pd.read_json(f'{output_folder}/{str(epoch)}.json')
@@ -70,7 +130,6 @@ task_two = PythonOperator(
     depends_on_past=False,
 )
 
-### T A S K _ T H R E E 
 # to be repeatable(?) lets select only new rows if there are in the file
 task_three = DummyOperator(
     task_id='select_new_memes',
@@ -101,77 +160,7 @@ task_four = BranchPythonOperator(
 )
 
 ### T A S K _ F I V E
-# select only wanted data features, flatten the data
-# META:
-def _meta_to_df(df):
-    meta_data = pd.DataFrame(df['meta'].values.tolist())
-    meta_data = meta_data[['og:image:width', 'og:image:height', 'og:description']]
-    meta_data = meta_data.rename(
-        {'og:image:width': 'ImageWidth', 'og:image:height': 'ImageHeight',
-         'og:description': 'SocialMediaDescription'},
-        axis=1)
-    return meta_data
 
-# DETAILS:
-def _details_to_df(df):
-    details = pd.DataFrame(df['details'].values.tolist())
-    details = details.rename(
-        {'status':'Status','origin':'Origin','year':'Year','type':'Type'}
-    )
-    return details
-
-# CONTENT SUBTABLES:
-def norm_cont(df,col,subcols):
-    subtable = pd.json_normalize(df[f"{col}"])
-    subtable = subtable[subcols]
-    return subtable
-
-# CONTENT:
-def _content_to_df(df):
-    content = pd.DataFrame(df['content'].values.tolist())
-    sub_columns = ["text","links","images"]
-    about = norm_cont(content,"about",sub_columns)
-    origin = norm_cont(content,"origin",sub_columns)
-    spread = norm_cont(content,"spread",sub_columns)
-    notable_examples = norm_cont(content,"notable examples",sub_columns)
-    search_interest = norm_cont(content,"search interest",sub_columns)
-    external_references = norm_cont(content,"external references",sub_columns[:-1]) # images tulpa external_ref tabelis ei ole
-    content = pd.concat([about, origin, spread, notable_examples, search_interest, external_references],axis=1)
-    # kuna tulpade nimed on korduvad, siis tuleks defineerida neid ümber hoopis nii
-    content.columns = ['AboutText','AboutLinks', 'AboutImages', 'OriginText', 'OriginLinks', 'OriginImages',
-                       'SpreadText', 'SpreadLinks', 'SpreadImages', 'NotExamplesText', 'NotExamplesLinks', 'NotExamplesImages',
-                       'SearchIntText', 'SearchIntLinks', 'SearchIntImages', 'ExtRefText', 'ExtRefLinks']
-    return content
-
-# MAIN FN FOR SELECTING FEATURES:
-def _select_features(epoch: int, output_folder: str):
-    df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
-    title = df[['title']].rename({'title':'Title'})
-    url = df[['url']].rename({'url':'URL'})
-    last_update_source = df[['last_update_source']].rename({'last_update_source':'TimeUpdated'})
-    template_image_url = df[['template_image_url']].rename({'template_image_url':'Image'})
-    meta = _meta_to_df(df)
-    added = df[['added']].rename({'added':'TimeAdded'})
-    details = _details_to_df(df)
-    content = _content_to_df(df)
-    tags = df[['tags']].rename({'tags':'Tags'})
-    additional_references = df[['additional_references']].rename({'additional_references':'References'})
-    search_keywords = df[['search_keywords']]
-    parent = df[['parent']].rename({'parent':'Parent'})
-    df = pd.concat([title,url,last_update_source,template_image_url,meta,added,details,tags,additional_references,search_keywords,parent],axis=1) #df
-    df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_flattened.csv')
-
-task_five = PythonOperator(
-    task_id='select_features',
-    dag=first_pipeline,
-    python_callable=_select_features,
-    op_kwargs={
-        "output_folder": "/opt/airflow/dags",
-        "epoch": "{{ execution_date.int_timestamp }}"
-    },
-    trigger_rule='all_success',
-    depends_on_past=False,
-)
 
 ### T A S K _ S I X
 # format the time fields (time_added,time_updated)
