@@ -1,5 +1,6 @@
 import airflow
 import datetime
+from datetime import datetime
 import urllib.request as request
 import pandas as pd
 from airflow import DAG
@@ -146,7 +147,7 @@ def _emptiness_check2(epoch: int, output_folder: str):
     if length == 0:
         return 'end'
     else:
-        return 'format'
+        return 'format_fields'
 
 
 task_six = BranchPythonOperator(
@@ -246,5 +247,5 @@ end = DummyOperator(
 # order of tasks
 task_one >> task_two >> [task_three,end] 
 task_three >> task_four >> task_five >> task_six >> [task_seven,end] 
-task_seven >> task_eight >> task_nine >> task_ten >> task_eleven
-[task_two,task_six,task_eleven] >> end
+task_seven >> task_eight >> task_nine >> task_ten
+[task_two,task_six,task_ten] >> end
