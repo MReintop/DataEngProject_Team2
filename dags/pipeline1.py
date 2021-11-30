@@ -52,8 +52,8 @@ task_one = PythonOperator(
 
 ### T A S K _ T W O 
 # check if no new rows (if no new rows then go forward to the end)
-def _emptiness_check(previous_epoch: int, output_folder: str):
-    df = pd.read_json(f'{output_folder}/{str(previous_epoch)}.json')
+def _emptiness_check(epoch: int, output_folder: str):
+    df = pd.read_json(f'{output_folder}/{str(epoch)}.json')
     length = len(df.index)
     if length == 0:
         return 'end'
@@ -66,7 +66,7 @@ task_two = BranchPythonOperator(
     dag=pipeline1,
     python_callable=_emptiness_check,
     op_kwargs={
-        'previous_epoch': '{{ execution_date.int_timestamp }}',
+        'epoch': '{{ execution_date.int_timestamp }}',
         "output_folder": "/opt/airflow/dags"
     },
     trigger_rule='all_success',
@@ -78,19 +78,23 @@ task_two = BranchPythonOperator(
 def _select_data(epoch: int, output_folder: str):
     with open(f'{output_folder}/{str(epoch)}.json','r') as f:
         data = json.loads(f.read())
-    df0 = pd.json_normalize(data,max_level=0) # additional_references need this level!
-    df1 = pd.json_normalize(data,max_level=1)
+    df0 = pd.json_normalize(data,max_level=0) # content, additional references need this level!
+    df2 = pd.json_normalize(data,max_level=2)
     columns0 = ['title','url','last_update_source','category','template_image_url','added','tags','search_keywords','parent','additional_references']
-    columns1 = [
+    columns2 = [
         'meta.og:image:width','meta.og:image:height','meta.og:description',
         'details.status','details.origin','details.year','details.type',
-        'content.about','content.origin','content.spread','content.notable examples','content.search interest','content.external references']
+        'content.about.text','content.about.images','content.about.links','content.origin.text','content.origin.images','content.origin.links',
+        'content.spread.text','content.spread.images','content.spread.links','content.notable examples.text','content.notable examples.images','content.notable examples.links',
+        'content.search interest.text','content.search interest.images','content.search interest.links','content.external references.text','content.external references.links']
     df0 = df0[columns0]
-    df1 = df1[columns1]
-    df = pd.concat([df0,df1],axis=1)
+    df2 = df2[columns2]
+    df = pd.concat([df0,df2],axis=1)
     df.columns = ['Title','URL','TimeUpdated','Category','Image','TimeAdded','Tags','Keywords','Parent','References',
                 'ImageWidth','ImageHeight','SocialMediaDescription','Status','Origin','Year','Type',
-                'About','Origin','Spread','NotExamples','SearchInt','ExtReferences']
+                'AboutText', 'AboutImages', 'AboutLinks', 'OriginText', 'OriginImages', 'OriginLinks',
+                'SpreadText', 'SpreadImages', 'SpreadLinks', 'NotExamplesText', 'NotExamplesImages', 'NotExamplesLinks',
+                'SearchIntText', 'SearchIntImages', 'SearchIntLinks', 'ExtRefText', 'ExtRefLinks']
     df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_flattened.csv',index=False)
 
 task_three = PythonOperator(
@@ -158,39 +162,75 @@ task_six = BranchPythonOperator(
 
 
 ### T A S K _ S E V E N
-task_seven = DummyOperator(
-    task_id='extract_content_fields',
+# format the time fields (time_added,time_updated)
+# format the string and int fields (.astype)
+
+# convert epoch time to readable date time
+def format_time(col_name):
+   formatted_date_time=pd.to_datetime(col_name.apply(datetime.fromtimestamp))
+   return formatted_date_time
+
+def _format_fields(epoch: int, output_folder: str):
+    df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
+    df["Title"] = df["Title"].astype("str")
+    df["URL"] = df["URL"].astype("str")
+    # time:
+    df['TimeUpdated'] = df['TimeUpdated'].fillna(-2208988800)
+    df['TimeUpdated'] = format_time(df['TimeUpdated'])
+    df['TimeAdded'] = df['TimeAdded'].fillna(-2208988800)
+    df['TimeAdded'] = format_time(df['TimeAdded'])
+    # int:
+    df['ImageWidth'] = df['ImageWidth'].fillna(0).astype("int64")
+    df['ImageHeight'] = df['ImageHeight'].fillna(0).astype("int64")
+    df['Year'] = df['Year'].fillna(1900).astype("int64")
+    df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_filtered.csv',index=False)
+
+task_seven = PythonOperator(
+    task_id='format_fields',
     dag=pipeline1,
-    trigger_rule='none_failed'
+    python_callable=_format_fields,
+    op_kwargs={
+        'epoch': '{{ execution_date.int_timestamp }}',
+        "output_folder": "/opt/airflow/dags"
+    },
+    trigger_rule='all_success',
 )
 
 
 ### T A S K _ E I G H T
-# format the time fields (time_added,time_updated)
-# format the string and int fields (.astype)
-task_eight = DummyOperator(
-    task_id='format_fields',
-    dag=pipeline1,
-    trigger_rule='none_failed'
-)
-
-### T A S K _ N I N E
 # remove sensitive/impropriate data
-task_nine = DummyOperator(
+def tags(df):
+    # create intermediate table Tags_exploded 
+    # where the initial column Tags is exploded into pieces and saved into new column Tag
+    Tags_exploded = df[['URL','Tags']]
+    Tags_exploded["Tags"] = Tags_exploded["Tags"].astype('str')
+    t1 = Tags_exploded.apply(lambda row: row["Tags"].split('[')[-1], axis=1)
+    Tags_exploded["t1"]=t1
+    t2 = Tags_exploded.apply(lambda row: row["t1"].split(']')[0], axis=1)
+    Tags_exploded["t2"]=t2
+    SingleTag = Tags_exploded.apply(lambda row: row["t2"].split(','), axis=1).explode()
+    Tags_exploded = Tags_exploded.join(pd.DataFrame(SingleTag,columns=["Tag"]))
+    Tags_exploded = Tags_exploded.drop(["Tags","t1","t2"],axis=1)
+    return Tags_exploded
+
+def _remove_nsfw(epoch: int, output_folder: str):
+    df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
+    
+task_eight = DummyOperator(
     task_id='remove_nsfw',
     dag=pipeline1,
     trigger_rule='none_failed'
 )
 
-### T A S K _ T E N 
-task_ten = DummyOperator(
+### T A S K _ N I N E
+task_nine = DummyOperator(
     task_id='create_sql',
     dag=pipeline1,
     trigger_rule='none_failed'
 )
 
-### T A S K _ E L E V E N
-task_eleven = DummyOperator(
+### T A S K _ T E N
+task_ten = DummyOperator(
     task_id='insert_to_db',
     dag=pipeline1,
     trigger_rule='none_failed'
