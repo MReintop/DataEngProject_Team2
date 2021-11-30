@@ -61,7 +61,7 @@ def _emptiness_check(previous_epoch: int, output_folder: str):
         return 'select_data'
 
 
-task_four = BranchPythonOperator(
+task_two = BranchPythonOperator(
     task_id='emptiness_check',
     dag=first_pipeline,
     python_callable=_emptiness_check,
@@ -74,29 +74,26 @@ task_four = BranchPythonOperator(
 
 
 ### T A S K _ T H R E E 
-# select only wanted data features, flatten the data
+# flatten the data and select only wanted data features
 def _select_data(epoch: int, output_folder: str):
     with open(f'{output_folder}/{str(epoch)}.json','r') as f:
         data = json.loads(f.read())
-    
-    
-    df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
-    title = df[['title']].rename({'title':'Title'})
-    url = df[['url']].rename({'url':'URL'})
-    last_update_source = df[['last_update_source']].rename({'last_update_source':'TimeUpdated'})
-    template_image_url = df[['template_image_url']].rename({'template_image_url':'Image'})
-    meta = _meta_to_df(df)
-    added = df[['added']].rename({'added':'TimeAdded'})
-    details = _details_to_df(df)
-    content = _content_to_df(df)
-    tags = df[['tags']].rename({'tags':'Tags'})
-    additional_references = df[['additional_references']].rename({'additional_references':'References'})
-    search_keywords = df[['search_keywords']]
-    parent = df[['parent']].rename({'parent':'Parent'})
-    df = pd.concat([title,url,last_update_source,template_image_url,meta,added,details,tags,additional_references,search_keywords,parent],axis=1) #df
+    df0 = pd.json_normalize(data,max_level=0) # additional_references need this level!
+    df1 = pd.json_normalize(data,max_level=1)
+    columns0 = ['title','url','last_update_source','category','template_image_url','added','tags','search_keywords','parent','additional_references']
+    columns1 = [
+        'meta.og:image:width','meta.og:image:height','meta.og:description',
+        'details.status','details.origin','details.year','details.type',
+        'content.about','content.origin','content.spread','content.notable examples','content.search interest','content.external references']
+    df0 = df0[columns0]
+    df1 = df1[columns1]
+    df = pd.concat([df0,df1],axis=1)
+    df.columns = ['Title','URL','TimeUpdated','Category','Image','TimeAdded','Tags','Keywords','Parent','References',
+                'ImageWidth','ImageHeight','SocialMediaDescription','Status','Origin','Year','Type',
+                'About','Origin','Spread','NotExamples','SearchInt','ExtReferences']
     df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_flattened.csv')
 
-task_five = PythonOperator(
+task_three = PythonOperator(
     task_id='select_data',
     dag=first_pipeline,
     python_callable=_select_data,
@@ -105,23 +102,22 @@ task_five = PythonOperator(
         "epoch": "{{ execution_date.int_timestamp }}"
     },
     trigger_rule='all_success',
-    depends_on_past=False,
 )
 
-# 
 
+### T A S K _ F O U R
 # select only category memes and delete high level duplicates
-def _sel_instances(epoch: int, output_folder: str):
-    df = pd.read_json(f'{output_folder}/{str(epoch)}.json')
-    df_memes = df[df.category=="Meme"]
-    df_memes_filtered=df_memes.drop_duplicates(subset='title', keep='first')
-    df_filtered = df_memes_filtered.drop("category",axis=1)
-    df_filtered.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_filtered.csv')
+def _sel_memes(epoch: int, output_folder: str):
+    df = pd.read_csv(f'{output_folder}/{str(epoch)}_flattened.csv')
+    df = df[df.category=="Meme"]
+    df=df.drop_duplicates(subset='title', keep='first')
+    df = df.drop("category",axis=1)
+    df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_filtered.csv')
 
-task_two = PythonOperator(
-    task_id='select_rows', 
+task_four = PythonOperator(
+    task_id='select_memes', 
     dag=first_pipeline,
-    python_callable=_sel_instances,
+    python_callable=_sel_memes,
     op_kwargs={
         "output_folder": "/opt/airflow/dags",
         "epoch": "{{ execution_date.int_timestamp }}"
@@ -130,28 +126,30 @@ task_two = PythonOperator(
     depends_on_past=False,
 )
 
+
+### T A S K _ F I V E
 # to be repeatable(?) lets select only new rows if there are in the file
-task_three = DummyOperator(
+task_five = DummyOperator(
     task_id='select_new_memes',
     dag=first_pipeline,
     trigger_rule='none_failed'
 )
 
-### T A S K _ F O U R
+### T A S K _ S I X 
 # check if no new rows (if no new rows then go forward to the end)
-def _emptiness_check(previous_epoch: int, output_folder: str):
+def _emptiness_check2(previous_epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(previous_epoch)}_filtered.csv')
     length = len(df.index)
     if length == 0:
         return 'end'
     else:
-        return 'split'
+        return 'format'
 
 
-task_four = BranchPythonOperator(
-    task_id='emptiness_check',
+task_six = BranchPythonOperator(
+    task_id='emptiness_check2',
     dag=first_pipeline,
-    python_callable=_emptiness_check,
+    python_callable=_emptiness_check2,
     op_kwargs={
         'previous_epoch': '{{ prev_execution_date.int_timestamp }}',
         "output_folder": "/opt/airflow/dags"
@@ -159,42 +157,41 @@ task_four = BranchPythonOperator(
     trigger_rule='all_success',
 )
 
-### T A S K _ F I V E
 
-
-### T A S K _ S I X
-# format the time fields (time_added,time_updated)
-task_six = DummyOperator(
-    task_id='format_time',
+### T A S K _ S E V E N
+task_seven = DummyOperator(
+    task_id='extract_content_fields',
     dag=first_pipeline,
     trigger_rule='none_failed'
 )
 
-### T A S K _ S E V E N
+
+### T A S K _ E I G H T
+# format the time fields (time_added,time_updated)
 # format the string and int fields (.astype)
-task_seven = DummyOperator(
+task_eight = DummyOperator(
     task_id='format_fields',
     dag=first_pipeline,
     trigger_rule='none_failed'
 )
 
-### T A S K _ E I G H T
-# remove sensitive/impropriate data
-task_eight = DummyOperator(
-    task_id='remove_nsfw',
-    dag=first_pipeline,
-    trigger_rule='none_failed'
-)
-
 ### T A S K _ N I N E
+# remove sensitive/impropriate data
 task_nine = DummyOperator(
-    task_id='create_sql',
+    task_id='remove_nsfw',
     dag=first_pipeline,
     trigger_rule='none_failed'
 )
 
 ### T A S K _ T E N 
 task_ten = DummyOperator(
+    task_id='create_sql',
+    dag=first_pipeline,
+    trigger_rule='none_failed'
+)
+
+### T A S K _ E L E V E N
+task_eleven = DummyOperator(
     task_id='insert_to_db',
     dag=first_pipeline,
     trigger_rule='none_failed'
