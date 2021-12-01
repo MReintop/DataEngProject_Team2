@@ -1,13 +1,14 @@
 # DataEngProject_Team2
 
-09.10
+**Meeting 09.10**
 
 Familiarize yourself with the data.
 Come up with different end queries which would be intereting to present. 1-5 per person.
 Next meeting will be 15.10 at 19:30.
 
 
-15.10
+**Meeting 15.10**
+
  An initial pipeline where data are loaded from file this is part one  (provided) and cleaned this is second : 
 1. Create airflow project with postgres db.
 2. Remove duplicates while importing data. MEMORY IS EXPENSIVE
@@ -15,7 +16,7 @@ Next meeting will be 15.10 at 19:30.
 4. Load the file into the database. NO JSON
 5. If needed we can make many tables.
 
-19.10 Add all the columns here we do not want to keep
+**Meeting 19.10 Add all the columns here we do not want to keep**
 
 1.week schedule (22.10)
 COLUMNS WE DO NOT NEED (Duplicates and not informative ones): 
@@ -34,7 +35,8 @@ Kertu: Uploads the data into the database.
 Vera: Date formatting and also help with summary of columns with python
 statics and unique words for tags
 
-05.11 Implementation of First pipeline in Airflow:
+**Meeting 05.11 Implementation of First pipeline in Airflow:**
+
 https://github.com/MReintop/DataEngProject_Team2/blob/main/dags/first_pipeline.py
 
 Tasks divided between members, so basically everyone finilize his/her work and replaces the DummyOperators in pipeline:
@@ -56,7 +58,42 @@ Other conclusions:
 - In second pipeline maybe to create logical views and augment the data?
 - Next time the first pipeline will be reviewed and next pipeline discussed.
 
-Next meeting 12.11 19:30
+**Meeting 12.11 19:30 Work is going on..**
+
+- we reviewed how far everybody are
+- Mariam showed her code, not added to pipeline as waiting for previous input
+- Kertu, Vera and Heidi have also done code but waiting for previous input
+- Mart needed help to finish his work. We discussed how he should proceed and agreed to review the work after next Tuesday.
+
+Next time 19.11 19:30 ? We met on 22.11, then on 23.11 and on 25.11
+
+**Meeting 25.11.2021**
+
+Conclusions of last days:
+- Execution in the airflow: failed where the json file is normalised.
+- Lecturer adviced to normalize the json file before cleansing.
+- DataFrame should be only once saved as csv. 
+- The first pipeline is for extracting data from source and sending to relational database.
+- The second pipeline send data to graph database.
+
+New order of the tasks:
+- Load json file.
+- Check if file is empty.
+- Normalise the json and select the features (data that we are interested into).
+- Cleanse the data in pandas dataframe:
+  - select only memes, delete duplicates and drop the category column;
+  - format time and other fields;
+  - remove the nsfw data;
+  - create the SQL;
+  - send data to relational DB.
+- End
+
+Next moves:
+
+- solve the normalizing issue: Vera and Mart helps Heidi
+- let's agree the next meeting time in chat
+
+-----
 
  A second pipeline where data are loaded into an ingestion system and then cleaned and processed :
 
@@ -74,6 +111,8 @@ Next meeting 12.11 19:30
 ...
 -----
 Lets cleanse first.
+
+
 
 
 Questions :
