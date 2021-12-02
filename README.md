@@ -95,9 +95,8 @@ Next moves:
 
 -----
 
- A second pipeline where data are loaded into an ingestion system and then cleaned and processed :
+ A (second?!!!) pipeline where data are loaded into an ingestion system and then cleaned and processed :
 
----- part 2
 1. Filter only category : Memes TAGS : Memes have content tags and additional referrences.
 2. Remove memes with bad words. "Sensitive tag in the data ? Or NSFW!"
 3. Date into a readable date? They might not all be the same.
@@ -112,6 +111,12 @@ Next moves:
 -----
 Lets cleanse first.
 
+
+Next meeting: 3.12.2021
+
+- We will look over the first pipeline and finish it.
+- We will start with the second pipeline that imports the data to graph db.
+- After we have two pipelines, then we make analysis onto the db-s.
 
 
 
