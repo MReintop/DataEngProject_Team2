@@ -170,6 +170,11 @@ def format_time(col_name):
    formatted_date_time=pd.to_datetime(col_name.apply(datetime.datetime.fromtimestamp))
    return formatted_date_time
 
+def repair_string(df, col_name):
+    df[col_name] = df[col_name].astype("str")
+    df[col_name] = df.apply(lambda row: row[col_name].replace('"','').replace("'",""),axis=1)
+    return df[col_name]
+
 def _format_fields(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
     df["Title"] = df["Title"].astype("str")
@@ -183,6 +188,13 @@ def _format_fields(epoch: int, output_folder: str):
     df['ImageWidth'] = df['ImageWidth'].fillna(0).astype("int64")
     df['ImageHeight'] = df['ImageHeight'].fillna(0).astype("int64")
     df['Year'] = df['Year'].fillna(1900).astype("int64")
+    # remove " and ' from string objects:
+    columns = ["Title","URL","Image","Tags","Keywords","Parent","References","SocialMediaDescription",
+               "Status","Origin","Type","AboutText","AboutImages","AboutLinks","OriginText","OriginImages",
+               "OriginLinks","SpreadText","SpreadImages","SpreadLinks","NotExamplesText",
+               "NotExamplesImages","NotExamplesLinks","SearchIntText","SearchIntImages","SearchIntLinks",
+               "ExtRefText","ExtRefLinks"]
+    for col in columns: df[col] = repair_string(df,col)
     df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_filtered.csv',index=False)
 
 task_seven = PythonOperator(
