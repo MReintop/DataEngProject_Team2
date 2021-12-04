@@ -112,11 +112,13 @@ Next moves:
 Lets cleanse first.
 
 
-Next meeting: 3.12.2021
+**Meeting: 3.12.2021**
 
-- We will look over the first pipeline and finish it.
-- We will start with the second pipeline that imports the data to graph db.
+- Kertu finishes the first pipeline that brings the data to relational database.
+- Vera and Mart started with the second pipeline that imports the data to graph db.
 - After we have two pipelines, then we make analysis onto the db-s.
+  - When Kertu is ready then Heidi and Kertu will continue with analysis and augmentation on relational db.
+  - We will decide on 9th of Dec if we want to present earlier or not.
 
 
 
