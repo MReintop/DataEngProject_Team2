@@ -54,67 +54,23 @@
     </head>
     <body class="vscode-body vscode-light">
         <h1 id="dataengproject_team2">DataEngProject_Team2</h1>
-<p><strong>Meeting 09.10</strong></p>
-<p>Familiarize yourself with the data.
-Come up with different end queries which would be intereting to present. 1-5 per person.
-Next meeting will be 15.10 at 19:30.</p>
-<p><strong>Meeting 15.10</strong></p>
-<p> An initial pipeline where data are loaded from file this is part one  (provided) and cleaned this is second :</p>
-<ol>
-<li>Create airflow project with postgres db.</li>
-<li>Remove duplicates while importing data. MEMORY IS EXPENSIVE</li>
-<li>Selecting the needed data. Everyone looks into what data is needed. But how do we gather the info about this.</li>
-<li>Load the file into the database. NO JSON</li>
-<li>If needed we can make many tables.</li>
-</ol>
-<p><strong>Meeting 19.10 Add all the columns here we do not want to keep</strong></p>
-<p>1.week schedule (22.10)
-COLUMNS WE DO NOT NEED (Duplicates and not informative ones):</p>
+<h2 id="meetings">MEETINGS</h2>
+<h3 id="meeting-06122021">Meeting 06.12.2021</h3>
 <ul>
-<li>Heidi will maybe make a file with the columns :</li>
-<li><a href="https://docs.google.com/spreadsheets/d/1jWBTh5St-vOnWT7O3VP2jGK0lJSdr-hh/edit?usp=sharing&amp;ouid=108325435939815487261&amp;rtpof=true&amp;sd=true">https://docs.google.com/spreadsheets/d/1jWBTh5St-vOnWT7O3VP2jGK0lJSdr-hh/edit?usp=sharing&amp;ouid=108325435939815487261&amp;rtpof=true&amp;sd=true</a></li>
-<li>Lets conclude with this then. Everyone downvote the columns. Yes</li>
-<li>Let's select columns with 4-5 votes. 2-3 votes let's discuss. 1 vote - what about them? 0 votes leave out!</li>
+<li>today ...</li>
 </ul>
-<p>2 week schedule. 29.10 due (TBD)
-This will be specified on friday (22.10).</p>
-<p>Mariam : Airflow + postgres project. I willl try.
-Heidi : Remove duplicates.
-Mart : Mart gathers the data we keep
-Kertu: Uploads the data into the database.
-Vera: Date formatting and also help with summary of columns with python
-statics and unique words for tags</p>
-<p><strong>Meeting 05.11 Implementation of First pipeline in Airflow:</strong></p>
-<p><a href="https://github.com/MReintop/DataEngProject_Team2/blob/main/dags/first_pipeline.py">https://github.com/MReintop/DataEngProject_Team2/blob/main/dags/first_pipeline.py</a></p>
-<p>Tasks divided between members, so basically everyone finilize his/her work and replaces the DummyOperators in pipeline:</p>
+<h3 id="meeting-3122021">Meeting: 3.12.2021</h3>
 <ul>
-<li>task_one: PythonOperator: get_source_file: <strong>Heidi</strong></li>
-<li>task_two: PythonOperator: select_rows: <strong>Heidi</strong></li>
-<li>task_three: PythonOperator: select_new_memes: skip currently</li>
-<li>task_four: BranchPythonOperator: emptiness_check: <strong>Heidi</strong></li>
-<li>task_five: PythonOperator: select_features: <strong>Mart</strong></li>
-<li>task_six: PythonOperator:format_time: <strong>Vera</strong></li>
-<li>task_seven: PythonOperator:remove_nsfw: <strong>Mariam</strong></li>
-<li>task_eight: PythonOperator:remove_nsfw: <strong>Heidi</strong></li>
-<li>task_nine: PythonOperator: create_sql: <strong>Kertu</strong></li>
-<li>task_ten: PostgresOperator: insert_to_db: <strong>Kertu</strong></li>
-</ul>
-<p><strong>Important Question</strong>: Where to store the intermediate file? In Airflow DB?</p>
-<p>Other conclusions:</p>
+<li>Kertu finishes the first pipeline that brings the data to relational database.</li>
+<li>Vera and Mart started with the second pipeline that imports the data to graph db.</li>
+<li>After we have two pipelines, then we make analysis onto the db-s.
 <ul>
-<li>Importing data from source file and cleansing in one pipeline.</li>
-<li>In second pipeline maybe to create logical views and augment the data?</li>
-<li>Next time the first pipeline will be reviewed and next pipeline discussed.</li>
+<li>When Kertu is ready then Heidi and Kertu will continue with analysis and augmentation on relational db.</li>
+<li>We will decide on 9th of Dec if we want to present earlier or not.</li>
 </ul>
-<p><strong>Meeting 12.11 19:30 Work is going on..</strong></p>
-<ul>
-<li>we reviewed how far everybody are</li>
-<li>Mariam showed her code, not added to pipeline as waiting for previous input</li>
-<li>Kertu, Vera and Heidi have also done code but waiting for previous input</li>
-<li>Mart needed help to finish his work. We discussed how he should proceed and agreed to review the work after next Tuesday.</li>
+</li>
 </ul>
-<p>Next time 19.11 19:30 ? We met on 22.11, then on 23.11 and on 25.11</p>
-<p><strong>Meeting 25.11.2021</strong></p>
+<h3 id="meeting-25112021">Meeting 25.11.2021</h3>
 <p>Conclusions of last days:</p>
 <ul>
 <li>Execution in the airflow: failed where the json file is normalised.</li>
@@ -144,7 +100,62 @@ statics and unique words for tags</p>
 <li>solve the normalizing issue: Vera and Mart helps Heidi</li>
 <li>let's agree the next meeting time in chat</li>
 </ul>
-<hr>
+<h3 id="meeting-1211-1930-work-is-going-on">Meeting 12.11 19:30 Work is going on..</h3>
+<ul>
+<li>we reviewed how far everybody are</li>
+<li>Mariam showed her code, not added to pipeline as waiting for previous input</li>
+<li>Kertu, Vera and Heidi have also done code but waiting for previous input</li>
+<li>Mart needed help to finish his work. We discussed how he should proceed and agreed to review the work after next Tuesday.</li>
+</ul>
+<p>Next time 19.11 19:30 ? We met on 22.11, then on 23.11 and on 25.11</p>
+<h3 id="meeting-0511-implementation-of-first-pipeline-in-airflow">Meeting 05.11 Implementation of First pipeline in Airflow:</h3>
+<p><a href="https://github.com/MReintop/DataEngProject_Team2/blob/main/dags/first_pipeline.py">https://github.com/MReintop/DataEngProject_Team2/blob/main/dags/first_pipeline.py</a></p>
+<p>Tasks divided between members, so basically everyone finilize his/her work and replaces the DummyOperators in pipeline:</p>
+<ul>
+<li>task_one: PythonOperator: get_source_file: <strong>Heidi</strong></li>
+<li>task_two: PythonOperator: select_rows: <strong>Heidi</strong></li>
+<li>task_three: PythonOperator: select_new_memes: skip currently</li>
+<li>task_four: BranchPythonOperator: emptiness_check: <strong>Heidi</strong></li>
+<li>task_five: PythonOperator: select_features: <strong>Mart</strong></li>
+<li>task_six: PythonOperator:format_time: <strong>Vera</strong></li>
+<li>task_seven: PythonOperator:remove_nsfw: <strong>Mariam</strong></li>
+<li>task_eight: PythonOperator:remove_nsfw: <strong>Heidi</strong></li>
+<li>task_nine: PythonOperator: create_sql: <strong>Kertu</strong></li>
+<li>task_ten: PostgresOperator: insert_to_db: <strong>Kertu</strong></li>
+</ul>
+<p><strong>Important Question</strong>: Where to store the intermediate file? In Airflow DB?</p>
+<p>Other conclusions:</p>
+<ul>
+<li>Importing data from source file and cleansing in one pipeline.</li>
+<li>In second pipeline maybe to create logical views and augment the data?</li>
+<li>Next time the first pipeline will be reviewed and next pipeline discussed.</li>
+</ul>
+<h3 id="meeting-1910-add-all-the-columns-here-we-do-not-want-to-keep">Meeting 19.10 Add all the columns here we do not want to keep</h3>
+<p>1.week schedule (22.10)
+COLUMNS WE DO NOT NEED (Duplicates and not informative ones):</p>
+<ul>
+<li>Heidi will maybe make a file with the columns :</li>
+<li><a href="https://docs.google.com/spreadsheets/d/1jWBTh5St-vOnWT7O3VP2jGK0lJSdr-hh/edit?usp=sharing&amp;ouid=108325435939815487261&amp;rtpof=true&amp;sd=true">https://docs.google.com/spreadsheets/d/1jWBTh5St-vOnWT7O3VP2jGK0lJSdr-hh/edit?usp=sharing&amp;ouid=108325435939815487261&amp;rtpof=true&amp;sd=true</a></li>
+<li>Lets conclude with this then. Everyone downvote the columns. Yes</li>
+<li>Let's select columns with 4-5 votes. 2-3 votes let's discuss. 1 vote - what about them? 0 votes leave out!</li>
+</ul>
+<p>2 week schedule. 29.10 due (TBD)
+This will be specified on friday (22.10).</p>
+<p>Mariam : Airflow + postgres project. I willl try.
+Heidi : Remove duplicates.
+Mart : Mart gathers the data we keep
+Kertu: Uploads the data into the database.
+Vera: Date formatting and also help with summary of columns with python
+statics and unique words for tags</p>
+<h3 id="meeting-1510">Meeting 15.10</h3>
+<p> An initial pipeline where data are loaded from file this is part one  (provided) and cleaned this is second :</p>
+<ol>
+<li>Create airflow project with postgres db.</li>
+<li>Remove duplicates while importing data. MEMORY IS EXPENSIVE</li>
+<li>Selecting the needed data. Everyone looks into what data is needed. But how do we gather the info about this.</li>
+<li>Load the file into the database. NO JSON</li>
+<li>If needed we can make many tables.</li>
+</ol>
 <p> A (second?!!!) pipeline where data are loaded into an ingestion system and then cleaned and processed :</p>
 <ol>
 <li>Filter only category : Memes TAGS : Memes have content tags and additional referrences.</li>
@@ -163,31 +174,24 @@ statics and unique words for tags</p>
 </ul>
 <hr>
 <p>Lets cleanse first.</p>
-<p><strong>Meeting: 3.12.2021</strong></p>
-<ul>
-<li>Kertu finishes the first pipeline that brings the data to relational database.</li>
-<li>Vera and Mart started with the second pipeline that imports the data to graph db.</li>
-<li>After we have two pipelines, then we make analysis onto the db-s.
-<ul>
-<li>When Kertu is ready then Heidi and Kertu will continue with analysis and augmentation on relational db.</li>
-<li>We will decide on 9th of Dec if we want to present earlier or not.</li>
-</ul>
-</li>
-</ul>
-<p>Questions :</p>
+<p> A third pipeline where a relational view is built on the data to perform some analysis
+ A fourth pipeline where data are enriched (use your creativity)
+ A fifth pipeline where a graph view is built on the data to facilitate some analysis
+Natural language analyses will be provided to be implemented at point 3 and 5, a base example using the images (which are not stored) will be included in 4</p>
+<h3 id="meeting-0910">Meeting 09.10</h3>
+<p>Familiarize yourself with the data.
+Come up with different end queries which would be intereting to present. 1-5 per person.
+Next meeting will be 15.10 at 19:30.</p>
+<h3 id="questions-">Questions :</h3>
 <ul>
 <li>How to remove first high-level duplicates? Got it</li>
 <li>Is ld (LD) necessary? NO</li>
 <li>What does positio mean? List for subcultures? Categories? Not needed</li>
 <li>Queries in two different query languages. What is the deal with this? How do we convert ?</li>
 </ul>
-<p>Query ideas :</p>
+<h3 id="query-ideas-">Query ideas :</h3>
 <p>How many different origins and which are the most popular means from these origins?
 Can we though?</p>
-<p> A third pipeline where a relational view is built on the data to perform some analysis
- A fourth pipeline where data are enriched (use your creativity)
- A fifth pipeline where a graph view is built on the data to facilitate some analysis
-Natural language analyses will be provided to be implemented at point 3 and 5, a base example using the images (which are not stored) will be included in 4</p>
 <h2 id="requirements">Requirements</h2>
 <ul>
 <li>To have docker <em>and</em> docker-compose installed.</li>

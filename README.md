@@ -1,73 +1,23 @@
 # DataEngProject_Team2
 
-**Meeting 09.10**
+## MEETINGS
 
-Familiarize yourself with the data.
-Come up with different end queries which would be intereting to present. 1-5 per person.
-Next meeting will be 15.10 at 19:30.
+### Meeting 06.12.2021
+
+- today ...
 
 
-**Meeting 15.10**
+### Meeting: 3.12.2021
 
- An initial pipeline where data are loaded from file this is part one  (provided) and cleaned this is second : 
-1. Create airflow project with postgres db.
-2. Remove duplicates while importing data. MEMORY IS EXPENSIVE
-3. Selecting the needed data. Everyone looks into what data is needed. But how do we gather the info about this.
-4. Load the file into the database. NO JSON
-5. If needed we can make many tables.
+- Kertu finishes the first pipeline that brings the data to relational database.
+- Vera and Mart started with the second pipeline that imports the data to graph db.
+- After we have two pipelines, then we make analysis onto the db-s.
+  - When Kertu is ready then Heidi and Kertu will continue with analysis and augmentation on relational db.
+  - We will decide on 9th of Dec if we want to present earlier or not.
 
-**Meeting 19.10 Add all the columns here we do not want to keep**
 
-1.week schedule (22.10)
-COLUMNS WE DO NOT NEED (Duplicates and not informative ones): 
-- Heidi will maybe make a file with the columns : 
-- https://docs.google.com/spreadsheets/d/1jWBTh5St-vOnWT7O3VP2jGK0lJSdr-hh/edit?usp=sharing&ouid=108325435939815487261&rtpof=true&sd=true
-- Lets conclude with this then. Everyone downvote the columns. Yes
-- Let's select columns with 4-5 votes. 2-3 votes let's discuss. 1 vote - what about them? 0 votes leave out! 
 
- 2 week schedule. 29.10 due (TBD)
-This will be specified on friday (22.10).
-
-Mariam : Airflow + postgres project. I willl try.
-Heidi : Remove duplicates.
-Mart : Mart gathers the data we keep
-Kertu: Uploads the data into the database.
-Vera: Date formatting and also help with summary of columns with python
-statics and unique words for tags
-
-**Meeting 05.11 Implementation of First pipeline in Airflow:**
-
-https://github.com/MReintop/DataEngProject_Team2/blob/main/dags/first_pipeline.py
-
-Tasks divided between members, so basically everyone finilize his/her work and replaces the DummyOperators in pipeline:
-- task_one: PythonOperator: get_source_file: **Heidi**
-- task_two: PythonOperator: select_rows: **Heidi**
-- task_three: PythonOperator: select_new_memes: skip currently
-- task_four: BranchPythonOperator: emptiness_check: **Heidi**
-- task_five: PythonOperator: select_features: **Mart**
-- task_six: PythonOperator:format_time: **Vera**
-- task_seven: PythonOperator:remove_nsfw: **Mariam**
-- task_eight: PythonOperator:remove_nsfw: **Heidi**
-- task_nine: PythonOperator: create_sql: **Kertu**
-- task_ten: PostgresOperator: insert_to_db: **Kertu**
-
-**Important Question**: Where to store the intermediate file? In Airflow DB?
-
-Other conclusions:
-- Importing data from source file and cleansing in one pipeline.
-- In second pipeline maybe to create logical views and augment the data?
-- Next time the first pipeline will be reviewed and next pipeline discussed.
-
-**Meeting 12.11 19:30 Work is going on..**
-
-- we reviewed how far everybody are
-- Mariam showed her code, not added to pipeline as waiting for previous input
-- Kertu, Vera and Heidi have also done code but waiting for previous input
-- Mart needed help to finish his work. We discussed how he should proceed and agreed to review the work after next Tuesday.
-
-Next time 19.11 19:30 ? We met on 22.11, then on 23.11 and on 25.11
-
-**Meeting 25.11.2021**
+### Meeting 25.11.2021
 
 Conclusions of last days:
 - Execution in the airflow: failed where the json file is normalised.
@@ -93,7 +43,74 @@ Next moves:
 - solve the normalizing issue: Vera and Mart helps Heidi
 - let's agree the next meeting time in chat
 
------
+
+
+### Meeting 12.11 19:30 Work is going on..
+
+- we reviewed how far everybody are
+- Mariam showed her code, not added to pipeline as waiting for previous input
+- Kertu, Vera and Heidi have also done code but waiting for previous input
+- Mart needed help to finish his work. We discussed how he should proceed and agreed to review the work after next Tuesday.
+
+Next time 19.11 19:30 ? We met on 22.11, then on 23.11 and on 25.11
+
+
+
+### Meeting 05.11 Implementation of First pipeline in Airflow:
+
+https://github.com/MReintop/DataEngProject_Team2/blob/main/dags/first_pipeline.py
+
+Tasks divided between members, so basically everyone finilize his/her work and replaces the DummyOperators in pipeline:
+- task_one: PythonOperator: get_source_file: **Heidi**
+- task_two: PythonOperator: select_rows: **Heidi**
+- task_three: PythonOperator: select_new_memes: skip currently
+- task_four: BranchPythonOperator: emptiness_check: **Heidi**
+- task_five: PythonOperator: select_features: **Mart**
+- task_six: PythonOperator:format_time: **Vera**
+- task_seven: PythonOperator:remove_nsfw: **Mariam**
+- task_eight: PythonOperator:remove_nsfw: **Heidi**
+- task_nine: PythonOperator: create_sql: **Kertu**
+- task_ten: PostgresOperator: insert_to_db: **Kertu**
+
+**Important Question**: Where to store the intermediate file? In Airflow DB?
+
+Other conclusions:
+- Importing data from source file and cleansing in one pipeline.
+- In second pipeline maybe to create logical views and augment the data?
+- Next time the first pipeline will be reviewed and next pipeline discussed.
+
+
+
+### Meeting 19.10 Add all the columns here we do not want to keep
+
+1.week schedule (22.10)
+COLUMNS WE DO NOT NEED (Duplicates and not informative ones): 
+- Heidi will maybe make a file with the columns : 
+- https://docs.google.com/spreadsheets/d/1jWBTh5St-vOnWT7O3VP2jGK0lJSdr-hh/edit?usp=sharing&ouid=108325435939815487261&rtpof=true&sd=true
+- Lets conclude with this then. Everyone downvote the columns. Yes
+- Let's select columns with 4-5 votes. 2-3 votes let's discuss. 1 vote - what about them? 0 votes leave out! 
+
+ 2 week schedule. 29.10 due (TBD)
+This will be specified on friday (22.10).
+
+Mariam : Airflow + postgres project. I willl try.
+Heidi : Remove duplicates.
+Mart : Mart gathers the data we keep
+Kertu: Uploads the data into the database.
+Vera: Date formatting and also help with summary of columns with python
+statics and unique words for tags
+
+
+
+### Meeting 15.10
+
+ An initial pipeline where data are loaded from file this is part one  (provided) and cleaned this is second : 
+1. Create airflow project with postgres db.
+2. Remove duplicates while importing data. MEMORY IS EXPENSIVE
+3. Selecting the needed data. Everyone looks into what data is needed. But how do we gather the info about this.
+4. Load the file into the database. NO JSON
+5. If needed we can make many tables.
+
 
  A (second?!!!) pipeline where data are loaded into an ingestion system and then cleaned and processed :
 
@@ -111,18 +128,22 @@ Next moves:
 -----
 Lets cleanse first.
 
-
-**Meeting: 3.12.2021**
-
-- Kertu finishes the first pipeline that brings the data to relational database.
-- Vera and Mart started with the second pipeline that imports the data to graph db.
-- After we have two pipelines, then we make analysis onto the db-s.
-  - When Kertu is ready then Heidi and Kertu will continue with analysis and augmentation on relational db.
-  - We will decide on 9th of Dec if we want to present earlier or not.
+ A third pipeline where a relational view is built on the data to perform some analysis
+ A fourth pipeline where data are enriched (use your creativity)
+ A fifth pipeline where a graph view is built on the data to facilitate some analysis
+Natural language analyses will be provided to be implemented at point 3 and 5, a base example using the images (which are not stored) will be included in 4
 
 
 
-Questions :
+### Meeting 09.10
+
+Familiarize yourself with the data.
+Come up with different end queries which would be intereting to present. 1-5 per person.
+Next meeting will be 15.10 at 19:30.
+
+
+
+### Questions :
 
 - How to remove first high-level duplicates? Got it
 - Is ld (LD) necessary? NO
@@ -130,16 +151,10 @@ Questions :
 - Queries in two different query languages. What is the deal with this? How do we convert ?
 
 
-Query ideas :
+### Query ideas :
 
 How many different origins and which are the most popular means from these origins?
 Can we though?
-
-
- A third pipeline where a relational view is built on the data to perform some analysis
- A fourth pipeline where data are enriched (use your creativity)
- A fifth pipeline where a graph view is built on the data to facilitate some analysis
-Natural language analyses will be provided to be implemented at point 3 and 5, a base example using the images (which are not stored) will be included in 4
 
 
 
