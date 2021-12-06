@@ -120,12 +120,12 @@ statics and unique words for tags
 4. Uniforming structure. 
 5. Search keywords meaning? https://www.wikidata.org/wiki/Property:P646 Filter those to readable data ? 
 6. We need to upload the data here ? No we need to make airflow project and open the data there. 
-8.uniforming content structure, e.g, clustering similar tags
+7. Uniforming content structure, e.g, clustering similar tags
 * We need to define the relations betweeen memes , how is useful to store then?
 * Also map urls to IDs
 * Add parent to each meme and they are Ids
 ...
------
+
 Lets cleanse first.
 
  A third pipeline where a relational view is built on the data to perform some analysis
@@ -140,7 +140,7 @@ Natural language analyses will be provided to be implemented at point 3 and 5, a
 Familiarize yourself with the data.
 Come up with different end queries which would be intereting to present. 1-5 per person.
 Next meeting will be 15.10 at 19:30.
-
+-----
 
 
 ### Questions :
@@ -155,8 +155,7 @@ Next meeting will be 15.10 at 19:30.
 
 How many different origins and which are the most popular means from these origins?
 Can we though?
-
-
+-----
 
 ## Requirements
 
