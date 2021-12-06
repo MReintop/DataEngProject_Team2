@@ -4,7 +4,11 @@
 
 ### Meeting 06.12.2021
 
-- 
+- Kertu has been working on the pipeline1, but has not finished yet because of some little issues. She has a plan.
+- Vera is working on pipeline2, which we agreed to be just the copy of pipeline1 with additional branch importing the data to graph DB.
+- We will ask opinion about node and relationship selection. Then Vera can continue.
+- Mart will do the intermediate presentation on 16th of Dec. Hope to have 2 pipelines then.
+- Lets think about the augmentation and enrichment possibilities..
 
 
 ### Meeting: 3.12.2021
