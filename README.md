@@ -5,7 +5,7 @@
 ### Meeting 06.12.2021
 
 - Kertu has been working on the pipeline1, but has not finished yet because of some little issues. She has a plan.
-- Vera is working on pipeline2, which we agreed to be just the copy of pipeline1 with additional branch importing the data to graph DB.
+- Vera is working on pipeline2, which we agreed to be just the copy of pipeline1 with additional branch importing the data to graph DB. Notebook [LINK](https://colab.research.google.com/drive/1WxJ9lwlwx3UTjw6Kq75W07-tkRCl2gDe?usp=sharing). 
 - We will ask opinion about node and relationship selection. Then Vera can continue.
 - Mart will do the intermediate presentation on 16th of Dec. Hope to have 2 pipelines then.
 - Lets think about the augmentation and enrichment possibilities..
@@ -162,7 +162,7 @@ Natural language analyses will be provided to be implemented at point 3 and 5, a
 
 ### Query ideas :
 
-How many different origins and which are the most popular means from these origins?
+- How many different origins and which are the most popular means from these origins?
 Can we though?
 -----
 
