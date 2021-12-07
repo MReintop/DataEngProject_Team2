@@ -245,18 +245,133 @@ task_eight = PythonOperator(
     trigger_rule='all_success',
 )
 
+def _create_meme_query(previous_epoch: int, output_folder: str):
+    df = pd.read_csv(f'{output_folder}/1638468896_filtered.csv')
+    with open("/opt/airflow/dags/meme_inserts.sql", "w") as f:
+        df_iterable = df.iterrows()
+        f.write(
+            "CREATE TABLE IF NOT EXISTS MEMES (\n"
+            "ID serial PRIMARY KEY,\n"
+            "TITLE VARCHAR,\n"
+            "URL VARCHAR,\n"
+            "TIME_UPDATED TIMESTAMP NOT NULL,\n"
+            "IMAGE VARCHAR,\n"
+            "IMAGE_WIDTH INT,\n"
+            "IMAGE_HEIGHT INT,\n"
+            "SOCIAL_MEDIA_DESCRIPTION VARCHAR,\n"
+            "TIME_ADDED TIMESTAMP,\n"
+            "STATUS VARCHAR,\n"
+            "ORIGIN VARCHAR,\n"
+            "MEME_YEAR INT,\n"
+            "MEME_TYPE VARCHAR,\n"
+            "MEME_ID VARCHAR,\n" # not in csv
+            "ABOUT_TEXT VARCHAR,\n"
+            "ABOUT_LINKS VARCHAR,\n"
+            "ABOUT_IMAGES VARCHAR,\n"
+            "ORIGIN_TEXT VARCHAR,\n"
+            "ORIGIN_LINKS VARCHAR,\n"
+            "ORIGIN_IMAGES VARCHAR,\n"
+            "SPREAD_TEXT VARCHAR,\n"
+            "SPREAD_LINKS VARCHAR,\n"
+            "SPREAD_IMAGES VARCHAR,\n"
+            "NOT_EXAMPLES_TEXT VARCHAR,\n"
+            "NOT_EXAMPLES_LINKS VARCHAR,\n"
+            "NOT_EXAMPLES_IMAGES VARCHAR,\n"
+            "SEARCH_INTR_TEXT VARCHAR,\n"
+            "SEARCH_INTR_LINKS VARCHAR,\n"
+            "SEARCH_INTR_IMAGES VARCHAR,\n"
+            "EXTERNAL_REF_TEXT VARCHAR,\n"
+            "EXTERNAL_REF_LINKS VARCHAR,\n"
+            "EXTERNAL_REF_IMAGES VARCHAR,\n" # not in csv
+            "TAGS VARCHAR,\n" 
+            "MEME_REFERENCES VARCHAR,\n"
+            "KEYWORDS VARCHAR,\n"
+            "PARENT VARCHAR);\n"
+        )
+        for index, row in df_iterable:
+            title = row['Title']
+            url = row['URL']
+            time_updated = row['TimeUpdated']
+            image = row['Image']
+            time_added = row['TimeAdded']
+            tags = row['Tags']
+            keywords = row['Keywords']
+            parent = row['Parent']
+            meme_references = row['References']
+            image_width = row['ImageWidth']
+            image_height = row['ImageHeight']
+            social_media_description = row['SocialMediaDescription']
+            status = row['Status']
+            origin = row['Origin']
+            year = row['Year']
+            meme_type = row['Type']
+            about_text = row['AboutText']
+            about_images = row['AboutImages']
+            about_links = row['AboutLinks']
+            origin_text = row['OriginText']
+            origin_images = row['OriginImages']
+            origin_links = row['OriginLinks']
+            spread_text = row['SpreadText']
+            spread_images = row['SpreadImages']
+            spread_links = row['SpreadLinks']
+            not_examples_text = row['NotExamplesText']
+            not_examples_images = row['NotExamplesImages']
+            not_examples_links = row['NotExamplesLinks']
+            search_intr_text = row['SearchIntText']
+            search_intr_images = row['SearchIntImages']
+            search_intr_links = row['SearchIntLinks']
+            external_ref_text = row['ExtRefText']
+            external_ref_links = row['ExtRefLinks']
+
+            # CURRENTLY MISSING FROM _filtered.csv #
+            # MEME_ID
+            meme_id = ' ' #row['']
+
+            # EXTERNAL_REF_IMAGES
+            external_ref_images = ' ' # row['']
+
+            f.write(
+                "INSERT INTO MEMES VALUES ("
+                f"""DEFAULT, '{title}', '{url}', '{time_updated}', '{image}', {image_width}, {image_height}, 
+                '{social_media_description}', '{time_added}', '{status}', '{origin}', {year}, '{meme_type}', '{meme_id}', 
+                '{about_text}', '{about_links}', '{about_images}', '{origin_text}', '{origin_links}', '{origin_images}', 
+                '{spread_text}', '{spread_links}', '{spread_images}', '{not_examples_text}', '{not_examples_links}', 
+                '{not_examples_images}', '{search_intr_text}', '{search_intr_links}', '{search_intr_images}', '{external_ref_text}', 
+                '{external_ref_links}', '{external_ref_images}' ,'{tags}', '{meme_references}', '{keywords}', '{parent}'
+                );\n"""
+            )
+
+        f.close()
+
 ### T A S K _ N I N E
-task_nine = DummyOperator(
-    task_id='create_sql',
+task_nine = PythonOperator(
+    task_id='create_meme_query',
     dag=pipeline1,
-    trigger_rule='none_failed'
+    python_callable=_create_meme_query,
+    op_kwargs={
+        'previous_epoch': '{{ prev_execution_date.int_timestamp }}',
+        'output_folder': '/opt/airflow/dags',
+    },
+    trigger_rule='all_success'
 )
 
 ### T A S K _ T E N
-task_ten = DummyOperator(
-    task_id='insert_to_db',
+## Add connection in Airflow
+# Admin -> Connections -> [+] (Add a new record)
+# Conn Id: postgres_default
+# Conn Type: Postgres
+# Host: postgres
+# Schema: postgres
+# Login: airflow
+# Password: airflow
+# Port: 5432
+task_ten = PostgresOperator(
+    task_id='insert_meme_query',
     dag=pipeline1,
-    trigger_rule='none_failed'
+    postgres_conn_id='postgres_default',
+    sql='meme_inserts.sql',
+    trigger_rule='none_failed',
+    autocommit=True
 )
 
 end = DummyOperator(
