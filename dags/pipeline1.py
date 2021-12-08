@@ -246,7 +246,7 @@ task_eight = PythonOperator(
 )
 
 def _create_meme_query(previous_epoch: int, output_folder: str):
-    df = pd.read_csv(f'{output_folder}/1638468896_filtered.csv')
+    df = pd.read_csv(f'{output_folder}/{str(previous_epoch)}_filtered.csv')
     with open("/opt/airflow/dags/meme_inserts.sql", "w") as f:
         df_iterable = df.iterrows()
         f.write(
