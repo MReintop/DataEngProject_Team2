@@ -174,7 +174,7 @@ def repair_string(df, col_name):
     df[col_name] = df[col_name].astype("str")
     df[col_name] = df.apply(
         lambda row: 
-            row[col_name].replace('"','').replace("'","").replace("`","").replace("\\","").replace("\n","").replace("{{","{").replace("}}","}").replace("’","").strip(),axis=1)
+            row[col_name].replace('"','').replace("'","").replace("`","").replace("\\","").replace("\n","").replace("{{","{").replace("}}","}").replace("’","").replace("{#","(#").strip(),axis=1)
     return df[col_name]
 
 def _format_fields(epoch: int, output_folder: str):
@@ -212,7 +212,7 @@ task_seven = PythonOperator(
 
 
 ### T A S K _ E I G H T
-# remove sensitive/impropriate data
+# remove sensitive/inappropriate data
 def tags(df):
     # create intermediate table Tags_exploded 
     # where the initial column Tags is exploded into pieces and saved into new column Tag
@@ -250,6 +250,7 @@ task_eight = PythonOperator(
 
 
 ### T A S K _ N I N E
+# Create a SQL query for inserting data to Postgres DB
 def _create_meme_query(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
     with open("/opt/airflow/dags/meme_inserts.sql", "w") as f:
@@ -361,6 +362,7 @@ task_nine = PythonOperator(
 )
 
 ### T A S K _ T E N
+# Inserting the data to the DB
 ## Add connection in Airflow
 # Admin -> Connections -> [+] (Add a new record)
 # Conn Id: postgres_default
