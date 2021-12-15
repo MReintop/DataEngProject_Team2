@@ -66,4 +66,3 @@ Create (search:Search {searchIntText:'SearchIntText', searchIntImages:'SearchInt
 * Create (meme)-[:ORIGINATES_FROM]->(origin);
 * Create (meme)-[:SEARCHED_BY]->(search);
 
-
