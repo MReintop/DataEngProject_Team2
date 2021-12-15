@@ -172,7 +172,9 @@ def format_time(col_name):
 
 def repair_string(df, col_name):
     df[col_name] = df[col_name].astype("str")
-    df[col_name] = df.apply(lambda row: row[col_name].replace('"','').replace("'",""),axis=1)
+    df[col_name] = df.apply(
+        lambda row: 
+            row[col_name].replace('"','').replace("'","").replace("`","").replace("\\","").replace("\n","").replace("{{","{").replace("}}","}").replace("’","").strip(),axis=1)
     return df[col_name]
 
 def _format_fields(epoch: int, output_folder: str):
@@ -245,8 +247,11 @@ task_eight = PythonOperator(
     trigger_rule='all_success',
 )
 
-def _create_meme_query(previous_epoch: int, output_folder: str):
-    df = pd.read_csv(f'{output_folder}/{str(previous_epoch)}_filtered.csv')
+
+
+### T A S K _ N I N E
+def _create_meme_query(epoch: int, output_folder: str):
+    df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
     with open("/opt/airflow/dags/meme_inserts.sql", "w") as f:
         df_iterable = df.iterrows()
         f.write(
@@ -325,10 +330,10 @@ def _create_meme_query(previous_epoch: int, output_folder: str):
 
             # CURRENTLY MISSING FROM _filtered.csv #
             # MEME_ID
-            meme_id = ' ' #row['']
+            meme_id = '' #row['']
 
             # EXTERNAL_REF_IMAGES
-            external_ref_images = ' ' # row['']
+            external_ref_images = '' # row['']
 
             f.write(
                 "INSERT INTO MEMES VALUES ("
@@ -343,13 +348,13 @@ def _create_meme_query(previous_epoch: int, output_folder: str):
 
         f.close()
 
-### T A S K _ N I N E
+
 task_nine = PythonOperator(
     task_id='create_meme_query',
     dag=pipeline1,
     python_callable=_create_meme_query,
     op_kwargs={
-        'previous_epoch': '{{ prev_execution_date.int_timestamp }}',
+        'epoch': '{{ execution_date.int_timestamp }}',
         'output_folder': '/opt/airflow/dags',
     },
     trigger_rule='all_success'
