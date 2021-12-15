@@ -4,7 +4,7 @@
                             SpreadImages,SpreadLinks,NotExamplesText,Status,Origin,Type,AboutText,AboutImages,
 						    AboutLinks,NotExamplesImages,NotExamplesLinks,
 2. **Node Ref properties :**  References
-3. **Node Parent properties :** Parent URL
+3. **Node Parent properties :**  URL
 4. **Node Keywords properties:** Keywords
 5. **Node Origin properties:** OriginText,OriginImages,OriginLinks
 6. **Node Search properties:** SearchIntText,SearchIntImages,SearchIntLinks
@@ -20,11 +20,29 @@
 ## Create constraint for each node
 > to avoid node duplication
 * CREATE CONSTRAINT ON (meme:Meme) ASSERT meme.title IS UNIQUE
-* CREATE CONSTRAINT ON (ref:Ref) ASSERT ref.id IS UNIQUE
+* CREATE CONSTRAINT ON (ref:Ref) ASSERT ref.references IS UNIQUE
 * CREATE CONSTRAINT ON (parent:Parent) ASSERT parent.url IS UNIQUE
-* CREATE CONSTRAINT ON (keywords:Keywords) ASSERT keywords.id IS UNIQUE
+* CREATE CONSTRAINT ON (keywords:Keywords) ASSERT keywords.keywords IS UNIQUE
 * CREATE CONSTRAINT ON (origin:Origin) ASSERT origin.originLinks IS UNIQUE
 * CREATE CONSTRAINT ON (search:Search) ASSERT search.SearchIntLinks IS UNIQUE
+
+## Create meme node 
+CREATE 
+(meme:Meme {title:'Title',image:'Image',tags:'Tags',socialMediaDescription:'SocialMediaDescription',extRefText: 'ExtRefText',
+extRefLinks:'ExtRefLinks',spreadText:'SpreadText',spreadImages:'SpreadImages',spreadLinks:'SpreadLinks',notExamplesText:'NotExamplesText',
+status:'Status',origin:'Origin',type:'Type',aboutText:'AboutText',aboutImages:'AboutImages',aboutLinks:'AboutLinks',
+notExamplesImages:'NotExamplesImages',notExamplesLinks:'NotExamplesLinks'});
+
+## Create Ref node
+CREATE (ref:Ref {reference:'References'});
+
+## Create parent node
+Create (parent:Parent {url:'URL'});
+
+## Create keywords node
+Create (keywords:Keywords {keywords:'Keywords'});
+
+## Create origin node
 
 
 
