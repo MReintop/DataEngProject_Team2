@@ -10,6 +10,17 @@ LIMIT 1000;
 * can limit amount being loaded or an error occurs with connection reset since taking long load for viewing 
 ### [Load using Call Apoc() for large data](https://neo4j.com/docs/cypher-manual/current/clauses/load-csv/)
 
+
+## Create constraint for each node
+> to avoid node duplication
+* CREATE CONSTRAINT ON (meme:Meme) ASSERT meme.title IS UNIQUE;
+* CREATE CONSTRAINT ON (ref:Ref) ASSERT ref.references IS UNIQUE;
+* CREATE CONSTRAINT ON (parent:Parent) ASSERT parent.url IS UNIQUE;
+* CREATE CONSTRAINT ON (keywords:Keywords) ASSERT keywords.keywords IS UNIQUE;
+* CREATE CONSTRAINT ON (origin:Origin) ASSERT origin.originLinks IS UNIQUE;
+* CREATE CONSTRAINT ON (search:Search) ASSERT search.SearchIntLinks IS UNIQUE;
+* ![image](https://user-images.githubusercontent.com/572088/146229492-0a96de9c-c34f-45ec-b3a1-5b91109cf89c.png)
+
 ## Created Node and properties
 1. **Node Meme properties:** Title,Image,Tags,SocialMediaDescription,ExtRefText,ExtRefLinks,SpreadText,
                             SpreadImages,SpreadLinks,NotExamplesText,Status,Origin,Type,AboutText,AboutImages,
@@ -26,16 +37,9 @@ LIMIT 1000;
 3. Meme-[:Found by]->Keywords
 4. Meme-[: Originates from]->Origin
 5. Meme-[: searched by]->Search
+![image](https://user-images.githubusercontent.com/572088/146229703-a61262b4-1ffe-4914-8b4e-706940d0e0b0.png)
 
-
-## Create constraint for each node
-> to avoid node duplication
-* CREATE CONSTRAINT ON (meme:Meme) ASSERT meme.title IS UNIQUE;
-* CREATE CONSTRAINT ON (ref:Ref) ASSERT ref.references IS UNIQUE;
-* CREATE CONSTRAINT ON (parent:Parent) ASSERT parent.url IS UNIQUE;
-* CREATE CONSTRAINT ON (keywords:Keywords) ASSERT keywords.keywords IS UNIQUE;
-* CREATE CONSTRAINT ON (origin:Origin) ASSERT origin.originLinks IS UNIQUE;
-* CREATE CONSTRAINT ON (search:Search) ASSERT search.SearchIntLinks IS UNIQUE;
+![image](https://user-images.githubusercontent.com/572088/146229085-23e9064b-b469-4741-ae4f-3da3e020256a.png)
 
 ## Create meme node 
 CREATE 
