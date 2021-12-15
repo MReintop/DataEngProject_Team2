@@ -1,4 +1,15 @@
 # Neo4j Graph modelling
+
+## [Neo4j Desktop use](https://neo4j.com/developer/neo4j-desktop/)
+## [Install plugins](https://medium.com/neo4j/explore-new-worlds-adding-plugins-to-neo4j-26e6a8e5d37e)
+## Load csv 
+### from published csv data in google drive for use locally
+* LOAD CSV WITH HEADERS FROM 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRuk8x8ddkeJ158rdHnPwYWsomvI30UYsyTdeIbb5f5QYO0biQdvpn1ut4BF0Uq4Tdt8VTMshMV9BjP/pub?gid=1900621182&single=true&output=csv' AS row
+RETURN row 
+LIMIT 1000;
+* can limit amount being loaded or an error occurs with connection reset since taking long load for viewing 
+### [Load using Call Apoc() for large data](https://neo4j.com/docs/cypher-manual/current/clauses/load-csv/)
+
 ## Created Node and properties
 1. **Node Meme properties:** Title,Image,Tags,SocialMediaDescription,ExtRefText,ExtRefLinks,SpreadText,
                             SpreadImages,SpreadLinks,NotExamplesText,Status,Origin,Type,AboutText,AboutImages,
@@ -55,12 +66,4 @@ Create (search:Search {searchIntText:'SearchIntText', searchIntImages:'SearchInt
 (meme)-[:ORIGINATES_FROM]->(origin);
 (meme)-[:SEARCHED_BY]->(search);
 
-## [Neo4j Desktop use](https://neo4j.com/developer/neo4j-desktop/)
-## [Install plugins](https://medium.com/neo4j/explore-new-worlds-adding-plugins-to-neo4j-26e6a8e5d37e)
-## Load csv 
-### from published csv data in google drive for use locally
-* LOAD CSV WITH HEADERS FROM 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRuk8x8ddkeJ158rdHnPwYWsomvI30UYsyTdeIbb5f5QYO0biQdvpn1ut4BF0Uq4Tdt8VTMshMV9BjP/pub?gid=1900621182&single=true&output=csv' AS row
-RETURN row 
-LIMIT 1000;
-* can limit amount being loaded or an error occurs with connection reset since taking long load for viewing 
-### [Load using Call Apoc() for large data](https://neo4j.com/docs/cypher-manual/current/clauses/load-csv/)
+
