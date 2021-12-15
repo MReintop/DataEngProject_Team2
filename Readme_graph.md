@@ -19,12 +19,12 @@
 
 ## Create constraint for each node
 > to avoid node duplication
-* CREATE CONSTRAINT ON (meme:Meme) ASSERT meme.title IS UNIQUE
-* CREATE CONSTRAINT ON (ref:Ref) ASSERT ref.references IS UNIQUE
-* CREATE CONSTRAINT ON (parent:Parent) ASSERT parent.url IS UNIQUE
-* CREATE CONSTRAINT ON (keywords:Keywords) ASSERT keywords.keywords IS UNIQUE
-* CREATE CONSTRAINT ON (origin:Origin) ASSERT origin.originLinks IS UNIQUE
-* CREATE CONSTRAINT ON (search:Search) ASSERT search.SearchIntLinks IS UNIQUE
+* CREATE CONSTRAINT ON (meme:Meme) ASSERT meme.title IS UNIQUE;
+* CREATE CONSTRAINT ON (ref:Ref) ASSERT ref.references IS UNIQUE;
+* CREATE CONSTRAINT ON (parent:Parent) ASSERT parent.url IS UNIQUE;
+* CREATE CONSTRAINT ON (keywords:Keywords) ASSERT keywords.keywords IS UNIQUE;
+* CREATE CONSTRAINT ON (origin:Origin) ASSERT origin.originLinks IS UNIQUE;
+* CREATE CONSTRAINT ON (search:Search) ASSERT search.SearchIntLinks IS UNIQUE;
 
 ## Create meme node 
 CREATE 
@@ -43,8 +43,17 @@ Create (parent:Parent {url:'URL'});
 Create (keywords:Keywords {keywords:'Keywords'});
 
 ## Create origin node
+Create (Origin:Origin {originText:'OriginText', originImages:'OriginImages', originLinks: 'OriginLinks'});
 
+## Create search node
+Create (search:Search {searchIntText:'SearchIntText', searchIntImages:'SearchIntImages', searchIntLinks:'SearchIntLinks'});
 
+## Create relationship between nodes
+(meme)-[:REFERED_BY]->(ref);
+(meme)-[:CHILD_OF]->(parent);
+(meme)-[:FOUND_BY]->(keywords);
+(meme)-[:ORIGINATES_FROM]->(origin);
+(meme)-[:SEARCHED_BY]->(search);
 
 ## [Neo4j Desktop use](https://neo4j.com/developer/neo4j-desktop/)
 ## [Install plugins](https://medium.com/neo4j/explore-new-worlds-adding-plugins-to-neo4j-26e6a8e5d37e)
