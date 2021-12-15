@@ -16,6 +16,18 @@
 4. Meme-[: Originates from]->Origin
 5. Meme-[: searched by]->Search
 
+
+## Create constraint for each node
+> to avoid node duplication
+* CREATE CONSTRAINT ON (meme:Meme) ASSERT meme.title IS UNIQUE
+* CREATE CONSTRAINT ON (ref:Ref) ASSERT ref.id IS UNIQUE
+* CREATE CONSTRAINT ON (parent:Parent) ASSERT parent.url IS UNIQUE
+* CREATE CONSTRAINT ON (keywords:Keywords) ASSERT keywords.id IS UNIQUE
+* CREATE CONSTRAINT ON (origin:Origin) ASSERT origin.originLinks IS UNIQUE
+* CREATE CONSTRAINT ON (search:Search) ASSERT search.SearchIntLinks IS UNIQUE
+
+
+
 ## [Neo4j Desktop use](https://neo4j.com/developer/neo4j-desktop/)
 ## [Install plugins](https://medium.com/neo4j/explore-new-worlds-adding-plugins-to-neo4j-26e6a8e5d37e)
 ## Load csv 
