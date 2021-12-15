@@ -31,16 +31,6 @@ LIMIT 1000;
 5. **Node Origin properties:** OriginText,OriginImages,OriginLinks
 6. **Node Search properties:** SearchIntText,SearchIntImages,SearchIntLinks
 
-## Relationships between nodes
-1. Meme-[:Refered by]->Ref
-2. Meme-[:Child of]->Parent
-3. Meme-[:Found by]->Keywords
-4. Meme-[: Originates from]->Origin
-5. Meme-[: searched by]->Search
-![image](https://user-images.githubusercontent.com/572088/146229703-a61262b4-1ffe-4914-8b4e-706940d0e0b0.png)
-
-![image](https://user-images.githubusercontent.com/572088/146229085-23e9064b-b469-4741-ae4f-3da3e020256a.png)
-
 ## Create meme node 
 CREATE 
 (meme:Meme {title:'Title',image:'Image',tags:'Tags',socialMediaDescription:'SocialMediaDescription',extRefText: 'ExtRefText',
@@ -62,6 +52,14 @@ Create (Origin:Origin {originText:'OriginText', originImages:'OriginImages', ori
 
 ## Create search node
 Create (search:Search {searchIntText:'SearchIntText', searchIntImages:'SearchIntImages', searchIntLinks:'SearchIntLinks'});
+![image](https://user-images.githubusercontent.com/572088/146229085-23e9064b-b469-4741-ae4f-3da3e020256a.png)
+
+## Relationships between nodes
+1. Meme-[:Refered by]->Ref
+2. Meme-[:Child of]->Parent
+3. Meme-[:Found by]->Keywords
+4. Meme-[: Originates from]->Origin
+5. Meme-[: searched by]->Search
 
 ## Create relationship between nodes
 * Create (meme)-[:REFERED_BY]->(ref);
@@ -69,4 +67,8 @@ Create (search:Search {searchIntText:'SearchIntText', searchIntImages:'SearchInt
 * Create (meme)-[:FOUND_BY]->(keywords);
 * Create (meme)-[:ORIGINATES_FROM]->(origin);
 * Create (meme)-[:SEARCHED_BY]->(search);
+
+![image](https://user-images.githubusercontent.com/572088/146229703-a61262b4-1ffe-4914-8b4e-706940d0e0b0.png)
+
+
 
