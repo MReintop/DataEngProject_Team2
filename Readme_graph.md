@@ -60,10 +60,10 @@ Create (Origin:Origin {originText:'OriginText', originImages:'OriginImages', ori
 Create (search:Search {searchIntText:'SearchIntText', searchIntImages:'SearchIntImages', searchIntLinks:'SearchIntLinks'});
 
 ## Create relationship between nodes
-(meme)-[:REFERED_BY]->(ref);
-(meme)-[:CHILD_OF]->(parent);
-(meme)-[:FOUND_BY]->(keywords);
-(meme)-[:ORIGINATES_FROM]->(origin);
-(meme)-[:SEARCHED_BY]->(search);
+* Create (meme)-[:REFERED_BY]->(ref);
+* Create (meme)-[:CHILD_OF]->(parent);
+* Create (meme)-[:FOUND_BY]->(keywords);
+* Create (meme)-[:ORIGINATES_FROM]->(origin);
+* Create (meme)-[:SEARCHED_BY]->(search);
 
 
