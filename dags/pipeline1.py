@@ -280,45 +280,7 @@ def _create_meme_query(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
     with open("/opt/airflow/dags/meme_inserts.sql", "w") as f:
         df_iterable = df.iterrows()
-        f.write(
-            "CREATE TABLE IF NOT EXISTS MEMES (\n"
-            "ID serial PRIMARY KEY,\n"
-            "TITLE VARCHAR,\n"
-            "URL VARCHAR,\n"
-            "TIME_UPDATED TIMESTAMP NOT NULL,\n"
-            "IMAGE VARCHAR,\n"
-            "IMAGE_WIDTH INT,\n"
-            "IMAGE_HEIGHT INT,\n"
-            "SOCIAL_MEDIA_DESCRIPTION VARCHAR,\n"
-            "TIME_ADDED TIMESTAMP,\n"
-            "STATUS VARCHAR,\n"
-            "ORIGIN VARCHAR,\n"
-            "MEME_YEAR INT,\n"
-            "MEME_TYPE VARCHAR,\n"
-            "MEME_ID VARCHAR,\n" # not in csv
-            "ABOUT_TEXT VARCHAR,\n"
-            "ABOUT_LINKS VARCHAR,\n"
-            "ABOUT_IMAGES VARCHAR,\n"
-            "ORIGIN_TEXT VARCHAR,\n"
-            "ORIGIN_LINKS VARCHAR,\n"
-            "ORIGIN_IMAGES VARCHAR,\n"
-            "SPREAD_TEXT VARCHAR,\n"
-            "SPREAD_LINKS VARCHAR,\n"
-            "SPREAD_IMAGES VARCHAR,\n"
-            "NOT_EXAMPLES_TEXT VARCHAR,\n"
-            "NOT_EXAMPLES_LINKS VARCHAR,\n"
-            "NOT_EXAMPLES_IMAGES VARCHAR,\n"
-            "SEARCH_INTR_TEXT VARCHAR,\n"
-            "SEARCH_INTR_LINKS VARCHAR,\n"
-            "SEARCH_INTR_IMAGES VARCHAR,\n"
-            "EXTERNAL_REF_TEXT VARCHAR,\n"
-            "EXTERNAL_REF_LINKS VARCHAR,\n"
-            "EXTERNAL_REF_IMAGES VARCHAR,\n" # not in csv
-            "TAGS VARCHAR,\n" 
-            "MEME_REFERENCES VARCHAR,\n"
-            "KEYWORDS VARCHAR,\n"
-            "PARENT VARCHAR);\n"
-        )
+
         for index, row in df_iterable:
             title = row['Title']
             url = row['URL']
@@ -354,21 +316,14 @@ def _create_meme_query(epoch: int, output_folder: str):
             external_ref_text = row['ExtRefText']
             external_ref_links = row['ExtRefLinks']
 
-            # CURRENTLY MISSING FROM _filtered.csv #
-            # MEME_ID
-            meme_id = '' #row['']
-
-            # EXTERNAL_REF_IMAGES
-            external_ref_images = '' # row['']
-
             f.write(
                 "INSERT INTO MEMES VALUES ("
                 f"""DEFAULT, '{title}', '{url}', '{time_updated}', '{image}', {image_width}, {image_height}, 
-                '{social_media_description}', '{time_added}', '{status}', '{origin}', {year}, '{meme_type}', '{meme_id}', 
+                '{social_media_description}', '{time_added}', '{status}', '{origin}', {year}, '{meme_type}', 
                 '{about_text}', '{about_links}', '{about_images}', '{origin_text}', '{origin_links}', '{origin_images}', 
                 '{spread_text}', '{spread_links}', '{spread_images}', '{not_examples_text}', '{not_examples_links}', 
-                '{not_examples_images}', '{search_intr_text}', '{search_intr_links}', '{search_intr_images}', '{external_ref_text}', 
-                '{external_ref_links}', '{external_ref_images}' ,'{tags}', '{meme_references}', '{keywords}', '{parent}'
+                '{not_examples_images}', '{search_intr_text}', '{search_intr_links}', '{search_intr_images}', 
+                '{external_ref_text}', '{external_ref_links}', '{tags}', '{meme_references}', '{keywords}', '{parent}'
                 );\n"""
             )
 
