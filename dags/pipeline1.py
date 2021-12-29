@@ -1,3 +1,4 @@
+import bs4
 import airflow
 import datetime
 import urllib.request as request
@@ -415,5 +416,5 @@ end = DummyOperator(
 # order of tasks
 task_one >> task_two >> [task_three,end] 
 task_three >> task_four >> task_five >> task_six >> [task_seven,end] 
-task_seven >> task_eight >> task_nine >> task_ten
+task_seven >> task_eight >> task_enrichment_1 >> task_nine >> task_ten
 [task_two,task_six,task_ten] >> end
