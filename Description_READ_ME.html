@@ -58,40 +58,53 @@
 <h2 id="project-structure-details">Project Structure Details</h2>
 <p>Every project must feature:</p>
 <ol>
-<li>Submit your <strong>task plan</strong> via model using the assignment link.</li>
-<li>An initial pipeline where data are loaded from file (provided) and cleaned</li>
-<li>A second pipeline where data are loaded into an ingestion system and then cleaned and processed  A third pipeline where a relational view is built on the data to perform some analysis</li>
-<li>A fourth pipeline where data are enriched (use your creativity)</li>
-<li>A fifth pipeline where a graph view is built on the data to facilitate some analysis</li>
+<li><s>Submit your <strong>task plan</strong> via model using the assignment link</s> <strong>DONE</strong></li>
+<li><s>An initial pipeline where data are loaded from file (provided) and cleaned</s> <strong>DONE</strong></li>
+<li><s>A second pipeline where data are loaded into an ingestion system and then cleaned and processed</s> <strong>DONE</strong>
+<em>We have 2 first pipelines together</em></li>
+<li>A third pipeline where a relational view is built on the data to perform some analysis</li>
+<li><em>A fourth pipeline where data are enriched (use your creativity)</em> <strong>In progress</strong></li>
+<li><em>A fifth pipeline where a graph view is built on the data to facilitate some analysis</em> <strong>In progress</strong></li>
 </ol>
-<p>Natural language analyses will be provided to be implemented at point 3 and 5, a base example using the images (which are not stored) will be included in 4.</p>
+<p><strong>Natural language analyses</strong> will be provided to be implemented at point 3 and 5, a base example using the images (which are not stored) will be included in 4.</p>
 <h2 id="project-requirements-and-grades">Project Requirements and Grades</h2>
 <ul>
 <li>1-3 Up to 71 Points</li>
 <li>4 Up to 61 Points</li>
 <li>Completing the base examples at 3,4,5 up to 91</li>
-<li>Re-implementing the pipeline as a streaming pipeline: up to 100 Presenting original work: new analysis, innovative solution up to 100</li>
+<li>Re-implementing the pipeline as a streaming pipeline: up to 100</li>
+<li>Presenting original work: new analysis, innovative solution up to 100</li>
 </ul>
 <h2 id="project-submission-instruction">Project Submission Instruction</h2>
 <p>The Project submission consists of:</p>
 <ul>
-<li>a GitHub repository with the Airflow Code</li>
-<li>a report (written preferably in latex or markdown) that describes the design decision behind every pipeline step</li>
-<li>a presentation in google slide to share the day before the project presentation</li>
-<li>Every group shall submit the repository link via Moodle ASAP</li>
-<li>at submission time, a zip file containing the code + report should be uploaded to Moodle.</li>
-<li>You can complete the project points step by step and ASK FOR FEEDBACKS early</li>
+<li><s>a GitHub repository with the Airflow Code</s> <strong>DONE</strong></li>
+<li><s>Every group shall submit the repository link via Moodle ASAP</s> <strong>DONE</strong></li>
+<li>a <strong>presentation in google slide</strong> to share the day before the project presentation</li>
+<li>at submission time, a zip file containing the code + report should be uploaded to Moodle <strong>Documentation and loading done after project presentation</strong></li>
+<li>You can complete the project points step by step and <strong>ASK FOR FEEDBACKS</strong> early <strong>We have asked, can be asked more</strong></li>
+<li>a report (written preferably in latex or markdown) that describes the design decision behind every pipeline step <strong>Documentation is done after project presentation</strong></li>
 </ul>
 <h2 id="examples-of-tasks">Examples of Tasks</h2>
-<p>Below you can find examples of valid tasks for each for the various project phases. You can use them, or you can invent new ones (appreciated).
-<strong>NOTE: we are not interested in the actual result but in the design process. We recommend the group to work together and brainstorm, try different things and carry on a discussion for each tasks</strong></p>
+<p>Below you can find examples of valid tasks for each for the various project phases. You can use them, or you can invent new ones (appreciated).</p>
+<p><strong>NOTE: we are not interested in the actual result but in the design process. We recommend the group to work together and brainstorm, try different things and carry on a discussion for each tasks</strong></p>
 <ul>
 <li>Data Cleansing
 <ul>
-<li>Removing Non-Memes entry from Know your meme <strong>DONE</strong></li>
-<li>removing data non forming to the schema <strong>DONE</strong></li>
-<li>removing memes with bad-words or sensitive content <strong>DONE</strong></li>
+<li><s>Removing Non-Memes entry from Know your meme</s> <strong>DONE</strong></li>
+<li><s>removing data non forming to the schema</s> <strong>DONE</strong></li>
+<li><s>removing memes with bad-words or sensitive</s> content <strong>DONE</strong></li>
 <li>uniforming content structure, e.g, clustering similar tags</li>
+<li>We also: <strong>DONE</strong>
+<ul>
+<li>Selected only the data we were interested in, not all the features
+<ul>
+<li>Values of different features were repeating</li>
+<li>json file was messy and broken. We choosed the reliable and understandable data</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>Data Augmentation/Enrichment
@@ -102,19 +115,25 @@
 <li>Extract temporal information from text fields</li>
 <li>Link the memes to Knowledge Graphs: DBPedia, Wikidata, Yago</li>
 <li>Include new data by using extra APIs: DBPrdia Spotlight or google vision (we have credits if you need some)</li>
+<li><strong>We decided to</strong>:
+<ul>
+<li>Download the &quot;nbr of views&quot; from the webpage of Know Your Memes for each Meme</li>
+<li>Add the bag of words for text fields to analyze them later</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>Data Transformations
 <ul>
 <li>Covert the memes into RDF/Labelled Property Graph</li>
-<li>Create a relational Model (ER for any of the available dataset</li>
+<li>Create a relational Model (ER for any of the available dataset)</li>
 </ul>
 </li>
 <li>Analysis
 <ul>
-<li>the queries should be written in two different query languages, e.g., SQL and Cypher (but also mongodb and SPARQL are ok)</li>
+<li>the queries should be written in two different query languages, e.g., SQL and Cypher (but also mongodb and SPARQL are ok) <strong>Queries in SQL in progress</strong></li>
 <li>What the most popular memes across country/website/community?</li>
-<li>how many memes include a parent relation?
+<li>How many memes include a parent relation?
 <ul>
 <li>design issues
 <ul>
@@ -135,6 +154,13 @@
 <li>encode the properties adequately</li>
 </ul>
 </li>
+</ul>
+</li>
+<li><strong>We will analyse using SQL</strong>:
+<ul>
+<li>Parent-children-sibling relations, counts, etc.</li>
+<li>The most popular memes, using downloaded nbr of views</li>
+<li>Analyze the textfields</li>
 </ul>
 </li>
 </ul>
