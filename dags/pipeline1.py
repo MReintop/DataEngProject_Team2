@@ -11,6 +11,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.postgres_operator import PostgresOperator
 import json
 from bs4 import BeautifulSoup
+import requests
 
 default_args_dict = {
     'start_date': datetime.datetime(2020, 6, 25, 0, 0, 0),
@@ -250,29 +251,33 @@ task_eight = PythonOperator(
     trigger_rule='all_success',
 )
 
-def nbr_of_views(url):
-    req = Request(url)
-    html_page = urlopen(req)
-    soup = BeautifulSoup(html_page,'lxml')
-    views = int(str(soup.find_all("div", "views")).split('title="')[1].split('Views')[0].replace(",","").strip())
-    return views
+### T A S K  F O R  E N R I C H I N G  D A T A 
+# CONNECTING TAKES TOO MUCH TIME: 2-4 SECONDS PER EACH ROW!
+#def nbr_of_views(url):
+#    if requests.get(url).status_code != 104:
+#        req = Request(url)
+#        html_page = urlopen(req)
+#        soup = BeautifulSoup(html_page,'html.parser')
+#        views = int(str(soup.find_all("div", "views")).split('title="')[1].split('Views')[0].replace(",","").strip())
+#    else: views=0
+#    return views
 
-def _get_views(epoch: int, output_folder: str):
-    df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
-    V = df.apply(lambda row: nbr_of_views(row['URL']),axis=1)
-    df['Views'] = V
-    df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_filtered.csv',index=False)
+#def _get_views(epoch: int, output_folder: str):
+#    df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
+#    V = df.apply(lambda row: nbr_of_views(row['URL']),axis=1)
+#    df['Views'] = V
+#    df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_filtered.csv',index=False)
 
-task_enrichment_1 = PythonOperator(
-    task_id='get_views',
-    dag=pipeline1,
-    python_callable=_get_views,
-    op_kwargs={
-        'epoch': '{{ execution_date.int_timestamp }}',
-        "output_folder": "/opt/airflow/dags"
-    },
-    trigger_rule='all_success',
-)
+#task_enrichment_1 = PythonOperator(
+#    task_id='get_views',
+#    dag=pipeline1,
+#    python_callable=_get_views,
+#    op_kwargs={
+#        'epoch': '{{ execution_date.int_timestamp }}',
+#        "output_folder": "/opt/airflow/dags"
+#    },
+#    trigger_rule='all_done',
+#)
 
 ### T A S K _ N I N E
 # Create a SQL query for inserting data to Postgres DB
