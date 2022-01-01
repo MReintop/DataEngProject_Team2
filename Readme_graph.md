@@ -13,6 +13,13 @@ LIMIT 1000;
 
 ## Create constraint for each node
 > to avoid node duplication
+* CREATE CONSTRAINT memeIdConstraint FOR (meme:Meme) REQUIRE meme.id IS UNIQUE
+* CREATE CONSTRAINT refIdConstraint FOR (ref:Ref) REQUIRE ref.id IS UNIQUE
+* CREATE CONSTRAINT parentIdConstraint FOR (parent:Parent) REQUIRE parent.id IS UNIQUE
+* CREATE CONSTRAINT keywordsIdConstraint FOR (keywords:Keywords) REQUIRE keyword.id IS UNIQUE
+* CREATE CONSTRAINT originIdConstraint FOR (origin:Origin) REQUIRE origin.id IS UNIQUE
+* CREATE CONSTRAINT searchIdConstraint FOR (search:Search) REQUIRE search.id IS UNIQUE
+
 * CREATE CONSTRAINT ON (meme:Meme) ASSERT meme.title IS UNIQUE;
 * CREATE CONSTRAINT ON (ref:Ref) ASSERT ref.references IS UNIQUE;
 * CREATE CONSTRAINT ON (parent:Parent) ASSERT parent.url IS UNIQUE;
