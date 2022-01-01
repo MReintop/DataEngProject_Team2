@@ -48,7 +48,7 @@ Create (parent:Parent {url:'URL'});
 Create (keywords:Keywords {keywords:'Keywords'});
 
 ## Create origin node
-Create (Origin:Origin {originText:'OriginText', originImages:'OriginImages', originLinks: 'OriginLinks'});
+Create (origin:Origin {originText:'OriginText', originImages:'OriginImages', originLinks: 'OriginLinks'});
 
 ## Create search node
 Create (search:Search {searchIntText:'SearchIntText', searchIntImages:'SearchIntImages', searchIntLinks:'SearchIntLinks'});
@@ -67,6 +67,8 @@ Create (search:Search {searchIntText:'SearchIntText', searchIntImages:'SearchInt
 * Create (meme)-[:FOUND_BY]->(keywords);
 * Create (meme)-[:ORIGINATES_FROM]->(origin);
 * Create (meme)-[:SEARCHED_BY]->(search);
+
+### Create combined multiple relationships
 
 ![image](https://user-images.githubusercontent.com/572088/146229703-a61262b4-1ffe-4914-8b4e-706940d0e0b0.png)
 
