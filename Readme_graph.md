@@ -23,9 +23,12 @@ LIMIT 1000;
 * in the .Neo4jDesktop\relate-data\dbmss\your-dbms-folder\import add graph.csv file
 
 **import the graph.csv file**
-> CALL apoc.load.csv('file:///graph.csv')
+> load csv with query below and now can create nodes and relationships
+* CALL apoc.load.csv('file:///graph.csv')
 YIELD lineNo, map, list
 RETURN *;
+
+
 
 
 ## To avoid duplication can either
