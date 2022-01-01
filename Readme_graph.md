@@ -9,6 +9,19 @@ RETURN row
 LIMIT 1000;
 * can limit amount being loaded or an error occurs with connection reset since taking long load for viewing 
 ### [Load using Call Apoc() for large data](https://neo4j.com/docs/cypher-manual/current/clauses/load-csv/)
+**configure settings file**
+dbms.security.allow_csv_import_from_file_urls=true
+dbms.memory.heap.initial_size=1G  
+dbms.memory.heap.max_size=4G 
+dbms.memory.pagecache.size=1512m
+**Add to config file apoc.conf in desktop neo4j project config file**
+apoc.import.file.enabled=true in your apoc.conf
+
+**import the graph.csv file**
+CALL apoc.load.csv('file:///graph.csv')
+YIELD lineNo, map, list
+RETURN *;
+
 
 
 ## Create constraint for each node
