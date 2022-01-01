@@ -16,7 +16,11 @@ LIMIT 1000;
 * dbms.memory.pagecache.size=1512m
 >
 **Add to config file apoc.conf in desktop neo4j project config file**
+>  in the .Neo4jDesktop\relate-data\dbmss\your-dbms-folder\conf folder add apoc.conf with line below
 * apoc.import.file.enabled=true in your apoc.conf
+
+**add graph csv**
+* in the .Neo4jDesktop\relate-data\dbmss\your-dbms-folder\import add graph.csv file
 
 **import the graph.csv file**
 > CALL apoc.load.csv('file:///graph.csv')
