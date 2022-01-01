@@ -20,6 +20,17 @@ LIMIT 1000;
 * CREATE CONSTRAINT originIdConstraint FOR (origin:Origin) REQUIRE origin.id IS UNIQUE
 * CREATE CONSTRAINT searchIdConstraint FOR (search:Search) REQUIRE search.id IS UNIQUE
 
+### Create index for each node
+* CREATE INDEX FOR (meme:Meme) ON (meme.title)
+* CREATE INDEX FOR (ref:Ref) ON (ref.references)
+* CREATE INDEX FOR (parent:Parent) ON (parent.url)
+* CREATE INDEX FOR (keywords:Keywords) ON (keywords.keywords)
+* CREATE INDEX FOR  (origin:Origin) ON (origin.originLinks)
+* CREATE INDEX FOR  (search:Search) ON (search.SearchIntLinks)
+
+
+### to edit
+> inplace of constraints can use index on a property of a node to ensure fast lookups.
 * CREATE CONSTRAINT ON (meme:Meme) ASSERT meme.title IS UNIQUE;
 * CREATE CONSTRAINT ON (ref:Ref) ASSERT ref.references IS UNIQUE;
 * CREATE CONSTRAINT ON (parent:Parent) ASSERT parent.url IS UNIQUE;
