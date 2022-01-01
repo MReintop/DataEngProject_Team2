@@ -24,8 +24,8 @@ YIELD lineNo, map, list
 RETURN *;
 
 
-
-## Create constraint for each node
+## To avoid duplication can either
+### 1. Create constraint for each node
 > to avoid node duplication
 * CREATE CONSTRAINT memeIdConstraint FOR (meme:Meme) REQUIRE meme.id IS UNIQUE
 * CREATE CONSTRAINT refIdConstraint FOR (ref:Ref) REQUIRE ref.id IS UNIQUE
@@ -34,7 +34,7 @@ RETURN *;
 * CREATE CONSTRAINT originIdConstraint FOR (origin:Origin) REQUIRE origin.id IS UNIQUE
 * CREATE CONSTRAINT searchIdConstraint FOR (search:Search) REQUIRE search.id IS UNIQUE
 
-### Create index for each node
+### 2. Create index for each node
 * CREATE INDEX FOR (meme:Meme) ON (meme.title)
 * CREATE INDEX FOR (ref:Ref) ON (ref.references)
 * CREATE INDEX FOR (parent:Parent) ON (parent.url)
