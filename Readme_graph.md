@@ -14,6 +14,7 @@ LIMIT 1000;
 * dbms.memory.heap.initial_size=1G  
 * dbms.memory.heap.max_size=4G 
 * dbms.memory.pagecache.size=1512m
+>
 **Add to config file apoc.conf in desktop neo4j project config file**
 * apoc.import.file.enabled=true in your apoc.conf
 
