@@ -431,3 +431,19 @@ https://knowyourmeme.com/memes/sites/4chan	1110
 https://knowyourmeme.com/memes/image-macros	1019
 */
 
+select * from (
+	select 'about' as typ, mal.* from meme_about_link mal 
+	union all
+	select 'origin' as typ, mol.* from meme_origin_link mol 
+	union all
+	select 'spread' as typ, msl.* from meme_spread_link msl 
+	union all
+	select 'notex' as typ, mnl.* from meme_notex_link mnl 
+	union all
+	select 'searchint' as typ, msl2.* from meme_searchint_link msl2 
+	union all
+	select 'extref' as typ, mel.* from meme_extref_link mel 
+) unlinks limit 50;
+
+select * from meme m limit 30;
+

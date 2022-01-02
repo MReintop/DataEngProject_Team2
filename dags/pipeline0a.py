@@ -37,7 +37,7 @@ start = DummyOperator(
 def _create_table_meme():
     with open("/opt/airflow/dags/create_table_meme.sql", "w") as f:
         f.write(
-            "DROP TABLE MEME CASCADE;\n"
+            "DROP TABLE IF EXISTS MEME CASCADE;\n"
             
             "CREATE TABLE MEME (\n"
             "URL VARCHAR PRIMARY KEY,\n"
@@ -60,6 +60,32 @@ task_create_table_meme = PythonOperator(
     task_id='create_table_meme',
     dag=pipeline0a,
     python_callable=_create_table_meme,
+    op_kwargs={},
+    trigger_rule='all_success'
+)
+
+### T A S K _ C R E A T E _ T A B L E _ L I N K
+# Create a SQL clause to create table LINK in Postgres DB
+def _create_table_link():
+    with open("/opt/airflow/dags/create_table_link.sql", "w") as f:
+        f.write(
+            "DROP TABLE IF EXISTS LINK CASCADE;\n"
+            
+            "CREATE TABLE LINK (\n"
+            "URL VARCHAR PRIMARY KEY,\n"
+            "TITLE VARCHAR,\n"
+            "CATEGORY VARCHAR,\n"
+            "SOCIAL_MEDIA_DESCRIPTION VARCHAR,\n"
+            "PARENT VARCHAR);\n"
+        )
+
+        f.close()
+
+
+task_create_table_link = PythonOperator(
+    task_id='create_table_link',
+    dag=pipeline0a,
+    python_callable=_create_table_link,
     op_kwargs={},
     trigger_rule='all_success'
 )
@@ -191,7 +217,7 @@ def _create_table_meme_img():
             
             "CREATE TABLE MEME_IMAGE (\n"
             "MEME_URL VARCHAR,\n"
-            "LINK VARCHAR, \n"
+            "IMAGE_LINK VARCHAR, \n"
             "TYPE VARCHAR,\n"
             "CONSTRAINT fk_meme\n"
                 "FOREIGN KEY(MEME_URL)\n"
@@ -223,7 +249,10 @@ def _create_table_meme_about_link():
             "LINK_NAME VARCHAR,\n"
             "CONSTRAINT fk_meme\n"
                 "FOREIGN KEY(MEME_URL)\n"
-	                "REFERENCES MEME(URL));\n"
+	                "REFERENCES MEME(URL),\n"
+            "CONSTRAINT fk_link\n"
+                "FOREIGN KEY(LINK)\n"
+	                "REFERENCES LINK(URL));\n"
         )
 
         f.close()
@@ -251,7 +280,10 @@ def _create_table_meme_origin_link():
             "LINK_NAME VARCHAR,\n"
             "CONSTRAINT fk_meme\n"
                 "FOREIGN KEY(MEME_URL)\n"
-	                "REFERENCES MEME(URL));\n"
+	                "REFERENCES MEME(URL),\n"
+            "CONSTRAINT fk_link\n"
+                "FOREIGN KEY(LINK)\n"
+	                "REFERENCES LINK(URL));\n"
         )
 
         f.close()
@@ -279,7 +311,10 @@ def _create_table_meme_spread_link():
             "LINK_NAME VARCHAR,\n"
             "CONSTRAINT fk_meme\n"
                 "FOREIGN KEY(MEME_URL)\n"
-	                "REFERENCES MEME(URL));\n"
+	                "REFERENCES MEME(URL),\n"
+            "CONSTRAINT fk_link\n"
+                "FOREIGN KEY(LINK)\n"
+	                "REFERENCES LINK(URL));\n"
         )
 
         f.close()
@@ -308,7 +343,10 @@ def _create_table_meme_notex_link():
             "LINK_NAME VARCHAR,\n"
             "CONSTRAINT fk_meme\n"
                 "FOREIGN KEY(MEME_URL)\n"
-	                "REFERENCES MEME(URL));\n"
+	                "REFERENCES MEME(URL),\n"
+            "CONSTRAINT fk_link\n"
+                "FOREIGN KEY(LINK)\n"
+	                "REFERENCES LINK(URL));\n"
         )
 
         f.close()
@@ -337,7 +375,10 @@ def _create_table_meme_searchint_link():
             "LINK_NAME VARCHAR,\n"
             "CONSTRAINT fk_meme\n"
                 "FOREIGN KEY(MEME_URL)\n"
-	                "REFERENCES MEME(URL));\n"
+	                "REFERENCES MEME(URL),\n"
+            "CONSTRAINT fk_link\n"
+                "FOREIGN KEY(LINK)\n"
+	                "REFERENCES LINK(URL));\n"
         )
 
         f.close()
@@ -366,7 +407,10 @@ def _create_table_meme_extref_link():
             "LINK_NAME VARCHAR,\n"
             "CONSTRAINT fk_meme\n"
                 "FOREIGN KEY(MEME_URL)\n"
-	                "REFERENCES MEME(URL));\n"
+	                "REFERENCES MEME(URL),\n"
+            "CONSTRAINT fk_link\n"
+                "FOREIGN KEY(LINK)\n"
+	                "REFERENCES LINK(URL));\n"
         )
 
         f.close()
@@ -387,6 +431,16 @@ exec_create_table_meme = PostgresOperator(
     dag=pipeline0a,
     postgres_conn_id='postgres_default',
     sql='create_table_meme.sql',
+    trigger_rule='none_failed',
+    autocommit=True
+)
+
+### T A S K _ E X E C _ C R E A T E _ T A B L E _ L I N K
+exec_create_table_link = PostgresOperator(
+    task_id='exec_create_table_link',
+    dag=pipeline0a,
+    postgres_conn_id='postgres_default',
+    sql='create_table_link.sql',
     trigger_rule='none_failed',
     autocommit=True
 )
@@ -510,18 +564,10 @@ end = DummyOperator(
 )
 
 # order of tasks
-start >> task_create_table_meme >> exec_create_table_meme >> [task_create_table_meme_text,
-                                                                task_create_table_meme_tag,
-                                                                task_create_table_meme_type,
-                                                                task_create_table_meme_ref,
-                                                                task_create_table_meme_img,
-                                                                task_create_table_meme_about_link,
-                                                                task_create_table_meme_origin_link,
-                                                                task_create_table_meme_spread_link,
-                                                                task_create_table_meme_notex_link,
-                                                                task_create_table_meme_searchint_link,
-                                                                task_create_table_meme_extref_link]
-
+start >> task_create_table_meme >> exec_create_table_meme >> task_create_table_link >> exec_create_table_link >> task_create_table_meme_text
+task_create_table_meme_text >> task_create_table_meme_tag >> task_create_table_meme_type >> task_create_table_meme_ref >> task_create_table_meme_img
+task_create_table_meme_img >> task_create_table_meme_about_link >> task_create_table_meme_origin_link >> task_create_table_meme_spread_link
+task_create_table_meme_spread_link >> task_create_table_meme_notex_link >> task_create_table_meme_searchint_link >> task_create_table_meme_extref_link
 
 task_create_table_meme_text >> exec_create_table_meme_text
 task_create_table_meme_tag >> exec_create_table_meme_tag
@@ -536,6 +582,7 @@ task_create_table_meme_searchint_link >> exec_create_table_meme_searchint_link
 task_create_table_meme_extref_link >> exec_create_table_meme_extref_link
 
 [exec_create_table_meme,
+ exec_create_table_link,
  exec_create_table_meme_text,
  exec_create_table_meme_tag,
  exec_create_table_meme_type,

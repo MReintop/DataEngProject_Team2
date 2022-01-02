@@ -810,65 +810,7 @@ task_insert_meme_img = PostgresOperator(
     autocommit=True
 )
 
-### T A S K _ I N S E R T _ M E M E _ A B O U T _ L I N K
-task_insert_meme_about_link = PostgresOperator(
-    task_id='insert_meme_about_link',
-    dag=pipeline1b,
-    postgres_conn_id='postgres_default',
-    sql='insert_meme_about_link.sql',
-    trigger_rule='none_failed',
-    autocommit=True
-)
 
-### T A S K _ I N S E R T _ M E M E _ O R I G I N _ L I N K
-task_insert_meme_origin_link = PostgresOperator(
-    task_id='insert_meme_origin_link',
-    dag=pipeline1b,
-    postgres_conn_id='postgres_default',
-    sql='insert_meme_origin_link.sql',
-    trigger_rule='none_failed',
-    autocommit=True
-)
-
-### T A S K _ I N S E R T _ M E M E _ S P R E A D _ L I N K
-task_insert_meme_spread_link = PostgresOperator(
-    task_id='insert_meme_spread_link',
-    dag=pipeline1b,
-    postgres_conn_id='postgres_default',
-    sql='insert_meme_spread_link.sql',
-    trigger_rule='none_failed',
-    autocommit=True
-)
-
-### T A S K _ I N S E R T _ M E M E _ N O T E X _ L I N K
-task_insert_meme_notex_link = PostgresOperator(
-    task_id='insert_meme_notex_link',
-    dag=pipeline1b,
-    postgres_conn_id='postgres_default',
-    sql='insert_meme_notex_link.sql',
-    trigger_rule='none_failed',
-    autocommit=True
-)
-
-### T A S K _ I N S E R T _ M E M E _ S E A R C H I N T _ L I N K
-task_insert_meme_searchint_link = PostgresOperator(
-    task_id='insert_meme_searchint_link',
-    dag=pipeline1b,
-    postgres_conn_id='postgres_default',
-    sql='insert_meme_searchint_link.sql',
-    trigger_rule='none_failed',
-    autocommit=True
-)
-
-### T A S K _ I N S E R T _ M E M E _ E X T R E F _ L I N K
-task_insert_meme_extref_link = PostgresOperator(
-    task_id='insert_meme_extref_link',
-    dag=pipeline1b,
-    postgres_conn_id='postgres_default',
-    sql='insert_meme_extref_link.sql',
-    trigger_rule='none_failed',
-    autocommit=True
-)
 
 
 ### E N D _ T A S K 
@@ -888,5 +830,4 @@ task_meme_ref_query >> task_meme_image >> task_meme_img_query >> task_meme_link
 task_meme_link >> task_meme_about_link_query >> task_meme_origin_link_query >> task_meme_spread_link_query
 task_meme_spread_link_query >> task_meme_notex_link_query >> task_meme_searchint_link_query >> task_meme_extref_link_query
 task_meme_extref_link_query >> task_insert_meme >> task_insert_meme_text >> task_insert_meme_tag >> task_insert_meme_type >> task_insert_meme_ref
-task_insert_meme_ref >> task_insert_meme_img >> task_insert_meme_about_link >> task_insert_meme_origin_link >> task_insert_meme_spread_link
-task_insert_meme_spread_link >> task_insert_meme_notex_link >> task_insert_meme_searchint_link >> task_insert_meme_extref_link >> end
+task_insert_meme_ref >> task_insert_meme_img >> end
