@@ -3,7 +3,7 @@
 ## SetUp neo4j desktop
 ### [Install plugins](https://medium.com/neo4j/explore-new-worlds-adding-plugins-to-neo4j-26e6a8e5d37e)
 ### configure following files in conf folder
-#### neo4j.conf
+#### 1. neo4j.conf
 > uncomment or edit following lines in the .Neo4jDesktop\relate-data\dbmss\your-dbms-folder\conf folder edit neo4j.conf
 * dbms.security.allow_csv_import_from_file_urls=true
 * dbms.memory.heap.initial_size=1G
@@ -11,11 +11,11 @@
 * dbms.memory.pagecache.size=1512m
 * Add to config file apoc.conf in desktop neo4j project config file
 
-### apoc.conf
+#### 2. apoc.conf
 > in the .Neo4jDesktop\relate-data\dbmss\your-dbms-folder\conf folder add apoc.conf with line below
 * apoc.import.file.enabled=true in your apoc.conf
 
-### import the graph csv to create nodes and relationships
+### Import the graph csv to create nodes and relationships
 > in the .Neo4jDesktop\relate-data\dbmss\your-dbms-folder\import folder 
 * add the csv file want to analyse
 
@@ -30,7 +30,7 @@
 * CREATE INDEX FOR  (origin:Origin) ON (origin.originLinks)
 * CREATE INDEX FOR  (search:Search) ON (search.SearchIntLinks)
 
-## to delete all nodes and relationships
+## To delete all nodes and relationships
 MATCH (n)
 DETACH DELETE n
 
