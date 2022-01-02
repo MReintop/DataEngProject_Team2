@@ -36,3 +36,6 @@ DETACH DELETE n
 
 ## To view all the nodes and their relationships
 match (n) return (n)
+
+## Reference on creating the [nodes nad relations](https://www.youtube.com/watch?v=1U6iUTV_Dco)
+
