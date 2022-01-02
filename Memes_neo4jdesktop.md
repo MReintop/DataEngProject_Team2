@@ -31,7 +31,7 @@
 * CREATE INDEX FOR  (search:Search) ON (search.SearchIntLinks)
 
 ## to delete all nodes and relationships
-* MATCH (n)
+MATCH (n)
 DETACH DELETE n
 
 ## To view all the nodes and their relationships
