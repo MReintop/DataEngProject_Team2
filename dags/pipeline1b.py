@@ -65,6 +65,7 @@ start = DummyOperator(
 # Save memes to table Meme - first save to csv file _meme.csv
 def _meme(epoch: int, output_folder: str):
     df = pd.read_csv(get_latest_filtered_csv())
+    df = df.fillna('')
     Meme = df[['URL','Title','TimeUpdated', 'Image', 'TimeAdded', 
             'Keywords', 'Parent', 'SocialMediaDescription', 'Status', 'Origin', 'Year']]
     Meme["Keywords"] = Meme.apply(lambda row: str(row["Keywords"]).replace("[","").replace("]","").strip(),axis=1)
@@ -88,6 +89,7 @@ task_meme = PythonOperator(
 # Save meme texts (about, origin, spread, notable examples, external ref) to table MemeText - first save to csv file _meme_text.csv
 def _meme_text(epoch: int, output_folder: str):
     df = pd.read_csv(get_latest_filtered_csv())
+    df = df.fillna('')
     MemeText = df[["URL","AboutText","OriginText","SpreadText","NotExamplesText","SearchIntText", "ExtRefText"]]
     # this part should be in format part
     MemeText["AboutText"] = MemeText.apply(lambda row: str(row["AboutText"]).replace("[","").replace("]","").strip(),axis=1)
@@ -117,6 +119,7 @@ task_meme_text = PythonOperator(
 # Save meme and tag relations to table Tag - first save to csv file _meme_tag.csv
 def _meme_tag(epoch: int, output_folder: str):
     df = pd.read_csv(get_latest_filtered_csv())
+    df = df.fillna('')
     Tag = df[['URL','Tags']]
     tags = Tag.apply(lambda row: row['Tags'].replace("[","").replace("]","").split(","),axis=1).explode()
     tags = pd.DataFrame(tags,columns=['Tag'])
@@ -275,6 +278,7 @@ def explode_links(df,LinksColumn):
 #'NotExamplesLinks','SearchIntLinks'
 def _meme_link(epoch: int, output_folder: str):
     df = pd.read_csv(get_latest_filtered_csv())
+    df = df.fillna('')
     MemeAboutLink = explode_links(df,"AboutLinks")
     MemeAboutLink.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_meme_about_link.csv',index=False)
     MemeOriginLink = explode_links(df,"OriginLinks")
@@ -318,6 +322,7 @@ task_meme_link = PythonOperator(
 # Create a SQL query for inserting MEME data to Postgres DB
 def _meme_query(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme.csv')
+    df = df.fillna('')
     with open("/opt/airflow/dags/insert_meme.sql", "w") as f:
         df_iterable = df.iterrows()
 
@@ -372,6 +377,7 @@ task_insert_meme = PostgresOperator(
 # Create a SQL query for inserting MEMETEXT data to Postgres DB
 def _meme_text_query(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_text.csv')
+    df = df.fillna('')
     with open(f'{output_folder}/insert_meme_text.sql', "w") as f:
         df_iterable = df.iterrows()
 
@@ -410,6 +416,7 @@ task_meme_text_query = PythonOperator(
 # Create a SQL query for inserting MEMETAG data to Postgres DB
 def _meme_tag_query(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_tag.csv')
+    df = df.fillna('')
     with open(f'{output_folder}/insert_meme_tag.sql', "w") as f:
         df_iterable = df.iterrows()
 
@@ -543,6 +550,7 @@ task_meme_img_query = PythonOperator(
 # Create a SQL query for inserting MEME_ABOUT_LINK data to Postgres DB
 def _meme_about_link_query(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_about_link.csv')
+    df = df.fillna('')
     with open(f"{output_folder}/insert_meme_about_link.sql", "w") as f:
         df_iterable = df.iterrows()
 
@@ -577,6 +585,7 @@ task_meme_about_link_query = PythonOperator(
 # Create a SQL query for inserting MEME_ORIGIN_LINK data to Postgres DB
 def _meme_origin_link_query(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_origin_link.csv')
+    df = df.fillna('')
     with open(f"{output_folder}/insert_meme_origin_link.sql", "w") as f:
         df_iterable = df.iterrows()
 
@@ -611,6 +620,7 @@ task_meme_origin_link_query = PythonOperator(
 # Create a SQL query for inserting MEME_SPREAD_LINK data to Postgres DB
 def _meme_spread_link_query(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_spread_link.csv')
+    df = df.fillna('')
     with open(f"{output_folder}/insert_meme_spread_link.sql", "w") as f:
         df_iterable = df.iterrows()
 
@@ -645,6 +655,7 @@ task_meme_spread_link_query = PythonOperator(
 # Create a SQL query for inserting MEME_NOTEX_LINK data to Postgres DB
 def _meme_notex_link_query(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_notex_link.csv')
+    df = df.fillna('')
     with open(f"{output_folder}/insert_meme_notex_link.sql", "w") as f:
         df_iterable = df.iterrows()
 
@@ -713,6 +724,7 @@ task_meme_searchint_link_query = PythonOperator(
 # Create a SQL query for inserting MEME_EXTREF_LINK data to Postgres DB
 def _meme_extref_link_query(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_extref_link.csv')
+    df = df.fillna('')
     with open(f"{output_folder}/insert_meme_extref_link.sql", "w") as f:
         df_iterable = df.iterrows()
 
