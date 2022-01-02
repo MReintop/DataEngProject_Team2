@@ -29,3 +29,10 @@
 * CREATE INDEX FOR (keywords:Keywords) ON (keywords.keywords)
 * CREATE INDEX FOR  (origin:Origin) ON (origin.originLinks)
 * CREATE INDEX FOR  (search:Search) ON (search.SearchIntLinks)
+
+## to delete all nodes and relationships
+* MATCH (n)
+DETACH DELETE n
+
+## To view all the nodes and their relationships
+match (n) return (n)
