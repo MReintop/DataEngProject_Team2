@@ -1,4 +1,4 @@
-import bs4
+# imports
 import airflow
 import datetime
 import urllib.request as request
@@ -10,8 +10,7 @@ from airflow.operators.python_operator import PythonOperator, BranchPythonOperat
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.postgres_operator import PostgresOperator
 import json
-from bs4 import BeautifulSoup
-import requests
+
 
 default_args_dict = {
     'start_date': datetime.datetime(2020, 6, 25, 0, 0, 0),
@@ -22,12 +21,14 @@ default_args_dict = {
 }
 
 ##### D A G   D E F I N I T I O N 
-# first pipeline is importing data from source and making the first rough selection
-# we should include here also the cleansing part:
-# removing sensitive/impropriate content
-# transform the data into correct formats: int, string, timestamp, etc.
-pipeline1 = DAG(
-    dag_id='pipeline1',
+# pipeline a
+# imports data from source
+# makes the first rough selection
+# cleanses data
+# removes sensitive/impropriate content
+# transforms the data into correct formats: int, string, timestamp, etc.
+pipeline1a = DAG(
+    dag_id='pipeline1a',
     default_args=default_args_dict,
     catchup=False,
     template_searchpath=['/opt/airflow/dags/']
@@ -42,7 +43,7 @@ def _get_source_file(epoch, url, output_folder):
 
 task_one = PythonOperator(
     task_id='get_source_file',
-    dag=pipeline1,
+    dag=pipeline1a,
     python_callable=_get_source_file,
     op_kwargs={
         "output_folder": "/opt/airflow/dags",
@@ -67,7 +68,7 @@ def _emptiness_check(epoch: int, output_folder: str):
 
 task_two = BranchPythonOperator(
     task_id='emptiness_check',
-    dag=pipeline1,
+    dag=pipeline1a,
     python_callable=_emptiness_check,
     op_kwargs={
         'epoch': '{{ execution_date.int_timestamp }}',
@@ -103,7 +104,7 @@ def _select_data(epoch: int, output_folder: str):
 
 task_three = PythonOperator(
     task_id='select_data',
-    dag=pipeline1,
+    dag=pipeline1a,
     python_callable=_select_data,
     op_kwargs={
         "output_folder": "/opt/airflow/dags",
@@ -124,7 +125,7 @@ def _select_memes(epoch: int, output_folder: str):
 
 task_four = PythonOperator(
     task_id='select_memes', 
-    dag=pipeline1,
+    dag=pipeline1a,
     python_callable=_select_memes,
     op_kwargs={
         "output_folder": "/opt/airflow/dags",
@@ -138,7 +139,7 @@ task_four = PythonOperator(
 # to be repeatable(?) lets select only new rows if there are in the file
 task_five = DummyOperator(
     task_id='select_new_memes',
-    dag=pipeline1,
+    dag=pipeline1a,
     trigger_rule='none_failed'
 )
 
@@ -155,7 +156,7 @@ def _emptiness_check2(epoch: int, output_folder: str):
 
 task_six = BranchPythonOperator(
     task_id='emptiness_check2',
-    dag=pipeline1,
+    dag=pipeline1a,
     python_callable=_emptiness_check2,
     op_kwargs={
         'epoch': '{{ execution_date.int_timestamp }}',
@@ -205,7 +206,7 @@ def _format_fields(epoch: int, output_folder: str):
 
 task_seven = PythonOperator(
     task_id='format_fields',
-    dag=pipeline1,
+    dag=pipeline1a,
     python_callable=_format_fields,
     op_kwargs={
         'epoch': '{{ execution_date.int_timestamp }}',
@@ -242,7 +243,7 @@ def _remove_nsfw(epoch: int, output_folder: str):
     
 task_eight = PythonOperator(
     task_id='remove_nsfw',
-    dag=pipeline1,
+    dag=pipeline1a,
     python_callable=_remove_nsfw,
     op_kwargs={
         'epoch': '{{ execution_date.int_timestamp }}',
@@ -251,124 +252,12 @@ task_eight = PythonOperator(
     trigger_rule='all_success',
 )
 
-### T A S K  F O R  E N R I C H I N G  D A T A 
-# CONNECTING TAKES TOO MUCH TIME: 2-4 SECONDS PER EACH ROW!
-#def nbr_of_views(url):
-#    if requests.get(url).status_code != 104:
-#        req = Request(url)
-#        html_page = urlopen(req)
-#        soup = BeautifulSoup(html_page,'html.parser')
-#        views = int(str(soup.find_all("div", "views")).split('title="')[1].split('Views')[0].replace(",","").strip())
-#    else: views=0
-#    return views
-
-#def _get_views(epoch: int, output_folder: str):
-#    df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
-#    V = df.apply(lambda row: nbr_of_views(row['URL']),axis=1)
-#    df['Views'] = V
-#    df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_filtered.csv',index=False)
-
-#task_enrichment_1 = PythonOperator(
-#    task_id='get_views',
-#    dag=pipeline1,
-#    python_callable=_get_views,
-#    op_kwargs={
-#        'epoch': '{{ execution_date.int_timestamp }}',
-#        "output_folder": "/opt/airflow/dags"
-#    },
-#    trigger_rule='all_done',
-#)
-
-### T A S K _ N I N E
-# Create a SQL query for inserting data to Postgres DB
-def _create_meme_query(epoch: int, output_folder: str):
-    df = pd.read_csv(f'{output_folder}/{str(epoch)}_filtered.csv')
-    with open("/opt/airflow/dags/meme_inserts.sql", "w") as f:
-        df_iterable = df.iterrows()
-
-        for index, row in df_iterable:
-            title = row['Title']
-            url = row['URL']
-            time_updated = row['TimeUpdated']
-            image = row['Image']
-            time_added = row['TimeAdded']
-            tags = row['Tags']
-            keywords = row['Keywords']
-            parent = row['Parent']
-            meme_references = row['References']
-            image_width = row['ImageWidth']
-            image_height = row['ImageHeight']
-            social_media_description = row['SocialMediaDescription']
-            status = row['Status']
-            origin = row['Origin']
-            year = row['Year']
-            meme_type = row['Type']
-            about_text = row['AboutText']
-            about_images = row['AboutImages']
-            about_links = row['AboutLinks']
-            origin_text = row['OriginText']
-            origin_images = row['OriginImages']
-            origin_links = row['OriginLinks']
-            spread_text = row['SpreadText']
-            spread_images = row['SpreadImages']
-            spread_links = row['SpreadLinks']
-            not_examples_text = row['NotExamplesText']
-            not_examples_images = row['NotExamplesImages']
-            not_examples_links = row['NotExamplesLinks']
-            search_intr_text = row['SearchIntText']
-            search_intr_images = row['SearchIntImages']
-            search_intr_links = row['SearchIntLinks']
-            external_ref_text = row['ExtRefText']
-            external_ref_links = row['ExtRefLinks']
-
-            f.write(
-                "INSERT INTO MEMES VALUES ("
-                f"""DEFAULT, '{title}', '{url}', '{time_updated}', '{image}', {image_width}, {image_height}, 
-                '{social_media_description}', '{time_added}', '{status}', '{origin}', {year}, '{meme_type}', 
-                '{about_text}', '{about_links}', '{about_images}', '{origin_text}', '{origin_links}', '{origin_images}', 
-                '{spread_text}', '{spread_links}', '{spread_images}', '{not_examples_text}', '{not_examples_links}', 
-                '{not_examples_images}', '{search_intr_text}', '{search_intr_links}', '{search_intr_images}', 
-                '{external_ref_text}', '{external_ref_links}', '{tags}', '{meme_references}', '{keywords}', '{parent}'
-                );\n"""
-            )
-
-        f.close()
 
 
-task_nine = PythonOperator(
-    task_id='create_meme_query',
-    dag=pipeline1,
-    python_callable=_create_meme_query,
-    op_kwargs={
-        'epoch': '{{ execution_date.int_timestamp }}',
-        'output_folder': '/opt/airflow/dags',
-    },
-    trigger_rule='all_success'
-)
-
-### T A S K _ T E N
-# Inserting the data to the DB
-## Add connection in Airflow
-# Admin -> Connections -> [+] (Add a new record)
-# Conn Id: postgres_default
-# Conn Type: Postgres
-# Host: postgres
-# Schema: postgres
-# Login: airflow
-# Password: airflow
-# Port: 5432
-task_ten = PostgresOperator(
-    task_id='insert_meme_query',
-    dag=pipeline1,
-    postgres_conn_id='postgres_default',
-    sql='meme_inserts.sql',
-    trigger_rule='none_failed',
-    autocommit=True
-)
-
+### E N D _ T A S K 
 end = DummyOperator(
     task_id='end_of_clensing',
-    dag=pipeline1,
+    dag=pipeline1a,
     trigger_rule='none_failed'
 )
 
@@ -376,5 +265,5 @@ end = DummyOperator(
 # order of tasks
 task_one >> task_two >> [task_three,end] 
 task_three >> task_four >> task_five >> task_six >> [task_seven,end] 
-task_seven >> task_eight >>  task_nine >> task_ten # task_enrichment_1 >>
-[task_two,task_six,task_ten] >> end
+task_seven >> task_eight
+[task_two,task_six,task_eight] >> end
