@@ -38,3 +38,8 @@ DETACH DELETE n
 ## To view all the nodes and their relationships
 match (n) return (n)
 
+
+# Create relations between memes
+## Cypher query
+load csv with headers from "file:///graph.csv" as memes CREATE (meme:Meme {title:memes.Title,image:memes.Image,tags:memes.Tags,socialMediaDescription:memes.SocialMediaDescription,extRefText: memes.ExtRefText, extRefLinks:memes.ExtRefLinks,spreadText:memes.SpreadText,spreadImages:memes.SpreadImages,spreadLinks:memes.SpreadLinks,notExamplesText:memes.NotExamplesText, status:memes.Status, origin:memes.Origin, type:memes.Type, aboutText:memes.AboutText, aboutImages:memes.AboutImages, aboutLinks:memes.AboutLinks, notExamplesImages:memes.NotExamplesImages, notExamplesLinks:memes.NotExamplesLinks,reference:memes.References, url:memes.URL,keywords:memes.keywords,originText:memes.OriginText,originImages:memes.OriginImages,originLinks:memes.OriginLinks,searchIntText:memes.SearchIntText,searchIntImages:memes.SearchIntImages,searchIntLinks:memes.SearchIntLinks})
+
