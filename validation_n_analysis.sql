@@ -25,12 +25,12 @@ group by 1 order by 2 desc;
 -- the longest length is 3328, count 1
 select length(social_media_description),count(*) from meme m 
 group by 1 order by 1 desc;
--- the shortest length is 1, count 19
+-- the shortest length is 0, count 16
 select length(social_media_description),count(*) from meme m 
 group by 1 order by 1;
 -- examples
 select * from meme m 
-where length(social_media_description)=1;
+where length(social_media_description)=0;
 
 -- status
 select count(distinct(status)) from meme m; -- 4
@@ -211,6 +211,35 @@ Fandom	19
 Dictionary.com	13
 IMDb	12
 */
+
+/*VALIDATE LINK*/
+select * from link l limit 100;
+
+select category,count(url) from link l 
+group by 1 order by 2 desc;
+
+select * from (
+	select * from link l 
+	where l.category ='Meme'
+) m2
+left join meme m 
+on m2.url = m.url 
+where m.url is null;
+
+select count(distinct(url)) from link l 
+where category = 'Meme'
+
+/*
+Other	60826
+Meme	12654
+Subculture	1233
+Person	1174
+Event	1116
+Site	380
+Culture	190
+*/
+
+select count(*) from meme m; -- 12621
 
 
 /* 
