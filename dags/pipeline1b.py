@@ -275,22 +275,23 @@ def explode_links(df,LinksColumn):
     Table = Table.drop_duplicates()
     return Table
 
-#'NotExamplesLinks','SearchIntLinks'
 def _meme_link(epoch: int, output_folder: str):
     df = pd.read_csv(get_latest_filtered_csv())
     df = df.fillna('')
     MemeAboutLink = explode_links(df,"AboutLinks")
-    MemeAboutLink.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_meme_about_link.csv',index=False)
+    MemeAboutLink["Section"] = "About"
     MemeOriginLink = explode_links(df,"OriginLinks")
-    MemeOriginLink.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_meme_origin_link.csv',index=False)
+    MemeOriginLink["Section"] = "Origin"
     MemeSpreadLink = explode_links(df,"SpreadLinks")
-    MemeSpreadLink.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_meme_spread_link.csv',index=False)
+    MemeSpreadLink["Section"] = "Spread"
     MemeNotExLink = explode_links(df,"NotExamplesLinks")
-    MemeNotExLink.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_meme_notex_link.csv',index=False)
+    MemeNotExLink["Section"] = "Notable Examples"
     MemeSearchIntLink = explode_links(df,"SearchIntLinks")
-    MemeSearchIntLink.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_meme_searchint_link.csv',index=False)
+    MemeSearchIntLink["Section"] = "Search Interest"
     MemeExtRefLink = explode_links(df,"ExtRefLinks")
-    MemeExtRefLink.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_meme_extref_link.csv',index=False)
+    MemeExtRefLink["Section"] = "External Reference"
+    MemeLink = MemeAboutLink.append(MemeOriginLink).append(MemeSpreadLink).append(MemeNotExLink).append(MemeSearchIntLink).append(MemeExtRefLink)
+    MemeLink.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_meme_link.csv',index=False)
 
 task_meme_link = PythonOperator(
     task_id='meme_link',
@@ -303,20 +304,13 @@ task_meme_link = PythonOperator(
     trigger_rule='all_success',
 )
 
-
-
 #_meme.csv
 #_meme_text.csv
 #_meme_tag.csv
 #_meme_type.csv
 #_meme_ref.csv
 #_meme_img.csv
-#_meme_about_link.csv
-#_meme_origin_link.csv
-#_meme_spread_link.csv
-#_meme_notex_link.csv
-#_meme_searchint_link.csv
-#_meme_extref_link.csv
+#_meme_link.csv
 
 ### T A S K _ M E M E _ Q U E R Y
 # Create a SQL query for inserting MEME data to Postgres DB
@@ -546,218 +540,38 @@ task_meme_img_query = PythonOperator(
 
 
 
-### T A S K _ M E M E _ A B O U T _ L I N K _ Q U E R Y
-# Create a SQL query for inserting MEME_ABOUT_LINK data to Postgres DB
-def _meme_about_link_query(epoch: int, output_folder: str):
-    df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_about_link.csv')
+### T A S K _ M E M E _ L I N K _ Q U E R Y
+# Create a SQL query for inserting MEME_LINK data to Postgres DB
+def _meme_link_query(epoch: int, output_folder: str):
+    df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_link.csv')
     df = df.fillna('')
-    with open(f"{output_folder}/insert_meme_about_link.sql", "w") as f:
+    with open(f"{output_folder}/insert_meme_link.sql", "w") as f:
         df_iterable = df.iterrows()
 
         for index, row in df_iterable:
             url = row['URL']
             linkname = row['LinkName']
             link = row['Link']
+            type = row['Section']
 
             f.write(
-                "INSERT INTO MEME_ABOUT_LINK VALUES ("
-                f""" '{url}', '{link}', '{linkname}'
+                "INSERT INTO MEME_LINK VALUES ("
+                f""" '{url}', '{link}', '{linkname}', '{type}'
                 );\n"""
             )
 
         f.close()
 
-task_meme_about_link_query = PythonOperator(
-    task_id='meme_about_link_query',
+task_meme_link_query = PythonOperator(
+    task_id='meme_link_query',
     dag=pipeline1b,
-    python_callable=_meme_about_link_query,
+    python_callable=_meme_link_query,
     op_kwargs={
         'epoch': '{{ execution_date.int_timestamp }}',
         'output_folder': '/opt/airflow/dags',
     },
     trigger_rule='all_success'
 )
-
-
-
-
-### T A S K _ M E M E _ O R I G I N _ L I N K _ Q U E R Y
-# Create a SQL query for inserting MEME_ORIGIN_LINK data to Postgres DB
-def _meme_origin_link_query(epoch: int, output_folder: str):
-    df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_origin_link.csv')
-    df = df.fillna('')
-    with open(f"{output_folder}/insert_meme_origin_link.sql", "w") as f:
-        df_iterable = df.iterrows()
-
-        for index, row in df_iterable:
-            url = row['URL']
-            linkname = row['LinkName']
-            link = row['Link']
-
-            f.write(
-                "INSERT INTO MEME_ORIGIN_LINK VALUES ("
-                f""" '{url}', '{link}', '{linkname}'
-                );\n"""
-            )
-
-        f.close()
-
-task_meme_origin_link_query = PythonOperator(
-    task_id='meme_origin_link_query',
-    dag=pipeline1b,
-    python_callable=_meme_origin_link_query,
-    op_kwargs={
-        'epoch': '{{ execution_date.int_timestamp }}',
-        'output_folder': '/opt/airflow/dags',
-    },
-    trigger_rule='all_success'
-)
-
-
-
-
-### T A S K _ M E M E _ S P R E A D _ L I N K _ Q U E R Y
-# Create a SQL query for inserting MEME_SPREAD_LINK data to Postgres DB
-def _meme_spread_link_query(epoch: int, output_folder: str):
-    df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_spread_link.csv')
-    df = df.fillna('')
-    with open(f"{output_folder}/insert_meme_spread_link.sql", "w") as f:
-        df_iterable = df.iterrows()
-
-        for index, row in df_iterable:
-            url = row['URL']
-            linkname = row['LinkName']
-            link = row['Link']
-
-            f.write(
-                "INSERT INTO MEME_SPREAD_LINK VALUES ("
-                f""" '{url}', '{link}', '{linkname}'
-                );\n"""
-            )
-
-        f.close()
-
-task_meme_spread_link_query = PythonOperator(
-    task_id='meme_spread_link_query',
-    dag=pipeline1b,
-    python_callable=_meme_spread_link_query,
-    op_kwargs={
-        'epoch': '{{ execution_date.int_timestamp }}',
-        'output_folder': '/opt/airflow/dags',
-    },
-    trigger_rule='all_success'
-)
-
-
-
-
-### T A S K _ M E M E _ N O T E X _ L I N K _ Q U E R Y
-# Create a SQL query for inserting MEME_NOTEX_LINK data to Postgres DB
-def _meme_notex_link_query(epoch: int, output_folder: str):
-    df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_notex_link.csv')
-    df = df.fillna('')
-    with open(f"{output_folder}/insert_meme_notex_link.sql", "w") as f:
-        df_iterable = df.iterrows()
-
-        for index, row in df_iterable:
-            url = row['URL']
-            linkname = row['LinkName']
-            link = row['Link']
-
-            f.write(
-                "INSERT INTO MEME_NOTEX_LINK VALUES ("
-                f""" '{url}', '{link}', '{linkname}'
-                );\n"""
-            )
-
-        f.close()
-
-task_meme_notex_link_query = PythonOperator(
-    task_id='meme_notex_link_query',
-    dag=pipeline1b,
-    python_callable=_meme_notex_link_query,
-    op_kwargs={
-        'epoch': '{{ execution_date.int_timestamp }}',
-        'output_folder': '/opt/airflow/dags',
-    },
-    trigger_rule='all_success'
-)
-
-
-
-
-### T A S K _ M E M E _ S E A R C H I N T _ L I N K _ Q U E R Y
-# Create a SQL query for inserting MEME_SEARCHINT_LINK data to Postgres DB
-def _meme_searchint_link_query(epoch: int, output_folder: str):
-    df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_searchint_link.csv')
-    with open(f"{output_folder}/insert_meme_searchint_link.sql", "w") as f:
-        df_iterable = df.iterrows()
-
-        for index, row in df_iterable:
-            url = row['URL']
-            linkname = row['LinkName']
-            link = row['Link']
-
-            f.write(
-                "INSERT INTO MEME_SEARCHINT_LINK VALUES ("
-                f""" '{url}', '{link}', '{linkname}'
-                );\n"""
-            )
-
-        f.close()
-
-task_meme_searchint_link_query = PythonOperator(
-    task_id='meme_searchint_link_query',
-    dag=pipeline1b,
-    python_callable=_meme_searchint_link_query,
-    op_kwargs={
-        'epoch': '{{ execution_date.int_timestamp }}',
-        'output_folder': '/opt/airflow/dags',
-    },
-    trigger_rule='all_success'
-)
-
-
-
-
-### T A S K _ M E M E _ E X T R E F _ L I N K _ Q U E R Y
-# Create a SQL query for inserting MEME_EXTREF_LINK data to Postgres DB
-def _meme_extref_link_query(epoch: int, output_folder: str):
-    df = pd.read_csv(f'{output_folder}/{str(epoch)}_meme_extref_link.csv')
-    df = df.fillna('')
-    with open(f"{output_folder}/insert_meme_extref_link.sql", "w") as f:
-        df_iterable = df.iterrows()
-
-        for index, row in df_iterable:
-            url = row['URL']
-            linkname = row['LinkName']
-            link = row['Link']
-
-            f.write(
-                "INSERT INTO MEME_EXTREF_LINK VALUES ("
-                f""" '{url}', '{link}', '{linkname}'
-                );\n"""
-            )
-
-        f.close()
-
-task_meme_extref_link_query = PythonOperator(
-    task_id='meme_extref_link_query',
-    dag=pipeline1b,
-    python_callable=_meme_extref_link_query,
-    op_kwargs={
-        'epoch': '{{ execution_date.int_timestamp }}',
-        'output_folder': '/opt/airflow/dags',
-    },
-    trigger_rule='all_success'
-)
-
-### J O I N _ T A S K 
-#join = DummyOperator(
-#    task_id='join',
-#    dag=pipeline1b,
-#    trigger_rule='none_failed'
-#)
 
 
 #insert_meme_text
@@ -765,12 +579,8 @@ task_meme_extref_link_query = PythonOperator(
 #insert_meme_type
 #insert_meme_ref
 #insert_meme_img
-#insert_meme_about_link
-#insert_meme_origin_link
-#insert_meme_spread_link
-#insert_meme_notex_link
-#insert_meme_searchint_link
-#insert_meme_extref_link
+#insert_meme_link
+
 
 ### T A S K _ I N S E R T _ M E M E _ T E X T
 task_insert_meme_text = PostgresOperator(
@@ -823,8 +633,6 @@ task_insert_meme_img = PostgresOperator(
 )
 
 
-
-
 ### E N D _ T A S K 
 end = DummyOperator(
     task_id='end',
@@ -834,12 +642,23 @@ end = DummyOperator(
 
 
 # order of tasks
-
-start >> task_meme
-task_meme >> task_meme_query >> task_meme_text >> task_meme_text_query >> task_meme_tag >> task_meme_tag_query
-task_meme_tag_query >> task_meme_type >> task_meme_type_query >> task_meme_reference >> task_meme_ref_query
-task_meme_ref_query >> task_meme_image >> task_meme_img_query >> task_meme_link
-task_meme_link >> task_meme_about_link_query >> task_meme_origin_link_query >> task_meme_spread_link_query
-task_meme_spread_link_query >> task_meme_notex_link_query >> task_meme_searchint_link_query >> task_meme_extref_link_query
-task_meme_extref_link_query >> task_insert_meme >> task_insert_meme_text >> task_insert_meme_tag >> task_insert_meme_type >> task_insert_meme_ref
-task_insert_meme_ref >> task_insert_meme_img >> end
+## split monotable:
+start >> task_meme >> task_meme_text >> task_meme_tag >> task_meme_type >> task_meme_reference >> task_meme_image >> task_meme_link
+task_meme_link >> task_meme_query
+## create queries
+task_meme_query >> task_meme_text_query >> task_meme_tag_query >> task_meme_type_query >> task_meme_ref_query >> task_meme_img_query >> task_meme_link_query
+## when query is ready then insert data 
+task_meme_query >> task_insert_meme
+task_meme_text_query >> task_insert_meme_text
+task_meme_tag_query >> task_insert_meme_tag
+task_meme_type_query >> task_insert_meme_type
+task_meme_ref_query >> task_insert_meme_ref
+task_meme_img_query >> task_insert_meme_img
+## if all data is inserted sucessfully then end
+[task_meme_link_query,
+ task_insert_meme,
+ task_insert_meme_text,
+ task_insert_meme_tag,
+ task_insert_meme_type,
+ task_insert_meme_ref,
+ task_insert_meme_img] >> end

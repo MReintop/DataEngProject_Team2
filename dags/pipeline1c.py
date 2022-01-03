@@ -51,8 +51,7 @@ def get_latest_csv(name):
 def _select_link(epoch: int, output_folder: str):
     df = pd.read_csv(get_latest_csv("flattened"))
     #df = df[df.Category!="Meme"]
-    df = df[['Title', 'URL', 'TimeUpdated', 'Category', 'Image', 'TimeAdded',
-             'Keywords', 'Parent', 'SocialMediaDescription', 'Status', 'Origin', 'Year']]
+    df = df[['Title', 'URL', 'Category', 'Parent', 'SocialMediaDescription']]
     df = df.drop_duplicates(subset='Title', keep='first')
     df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_link.csv',index=False)
 
@@ -107,10 +106,10 @@ task_emptiness_chk = BranchPythonOperator(
 # format the string and int fields (.astype)
 
 def repair_string(df, col_name):
-    df[col_name] = df[col_name].astype("str")
+    #df[col_name] = df[col_name].astype("str")
     df[col_name] = df.apply(
         lambda row: 
-            row[col_name].replace('"','').replace("'","").replace("`","").replace("\\","").replace("\n","").replace("{{","{").replace("}}","}").replace("’","").replace("{#","(#").strip(),axis=1)
+            str(row[col_name]).replace('"','').replace("'","").replace("`","").replace("\\","").replace("\n","").replace("{{","{").replace("}}","}").replace("’","").replace("{#","(#").strip(),axis=1)
     return df[col_name]
 
 def _format_fields(epoch: int, output_folder: str):
@@ -150,28 +149,40 @@ def find_cat(string):
         if result: return(categories[pattern])
         else: return("Other")
 
+def get_one_value(df,URL,value_col):
+    all = df[df["URL"]==URL][value_col]
+    return all.iloc[0]
+
 def _collect_links(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_link.csv')
     df = df[["URL","Title","Category","Parent","SocialMediaDescription"]]
-    about_links = pd.read_csv(get_latest_csv("meme_about_link"))
-    origin_links = pd.read_csv(get_latest_csv("meme_origin_link"))
-    spread_links = pd.read_csv(get_latest_csv("meme_spread_link"))
-    notex_links = pd.read_csv(get_latest_csv("meme_notex_link"))
-    searchint_links = pd.read_csv(get_latest_csv("meme_searchint_link"))
-    extref_links = pd.read_csv(get_latest_csv("meme_extref_link"))
-    all_links = about_links.append(origin_links).append(spread_links).append(notex_links).append(searchint_links).append(extref_links)
-    missing_links = all_links[~all_links["Link"].isin(df["URL"])]
-    missing_links["URL"] = missing_links["Link"]
-    missing_links["Title"] = missing_links["LinkName"]
+    links = pd.read_csv(get_latest_csv("meme_link"))
+    links = links[["Link","LinkName"]]
+    links = links.drop_duplicates()
+    missing_links = links[~links["Link"].isin(df["URL"])]
+    missing_links.columns = ["URL","Title"]
     missing_links["Parent"] = np.NAN
     missing_links["SocialMediaDescription"] = np.NAN
-    missing_links["Category"] = missing_links.apply(lambda row: 
-        find_cat(str(row["Link"]).split("https://knowyourmeme.com/")[-1].split("memes/")[-1].split("/")[0]),axis=1)
+    missing_links["Category2"] = links.apply(lambda row: str(row["Link"]).split("https://knowyourmeme.com/")[-1].split("memes/")[-1].split("/")[0].strip(),axis=1)
+    missing_links["Category"] = missing_links.apply(lambda row: find_cat(str(row["Category2"])),axis=1)
     missing_links = missing_links[["URL","Title","Category","Parent","SocialMediaDescription"]]
-    missing_links.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_link.csv',index=False)
     df = df.append(missing_links)
     df = df.drop_duplicates()
-    df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_link.csv',index=False)
+    ## URLs must be unique
+    stat = df.groupby(by="URL").count().sort_values(by="Title",ascending=False)
+    urls = list(stat[stat["Title"]>1].index) + list(stat[stat["Category"]>1].index)
+    repeating_urls = df[df["URL"].isin(urls)].sort_values(by="URL")
+    repeating_urls = repeating_urls[["URL","Parent","SocialMediaDescription"]]
+    repeating_urls = repeating_urls.drop_duplicates()
+    ## find one title and one category for URLs which had repeating titles
+    repeating_urls["Title"] = repeating_urls.apply(lambda row: get_one_value(df,str(row["URL"]),"Title"),axis=1)
+    repeating_urls["Category"] = repeating_urls.apply(lambda row: get_one_value(df,str(row["URL"]),"Category"),axis=1)
+    repeating_urls = repeating_urls[["URL","Title","Category","Parent","SocialMediaDescription"]]
+    # remove repeating titles and join fixed rows
+    df = df[~df["URL"].isin(urls)]
+    df = df.append(repeating_urls)
+    df = df.drop_duplicates()
+    df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_links.csv',index=False)
 
 task_collect_links = PythonOperator(
     task_id='collect_links',
@@ -188,7 +199,7 @@ task_collect_links = PythonOperator(
 ### T A S K _ L I N K _ Q U E R Y
 # Create a SQL query for inserting LINK categories data to Postgres DB
 def _link_query(epoch: int, output_folder: str):
-    df = pd.read_csv(f'{output_folder}/{str(epoch)}_link.csv')
+    df = pd.read_csv(f'{output_folder}/{str(epoch)}_links.csv')
     with open("/opt/airflow/dags/insert_link.sql", "w") as f:
         df_iterable = df.iterrows()
 
@@ -230,65 +241,16 @@ task_insert_link = PostgresOperator(
 
 
 
-### T A S K _ I N S E R T _ M E M E _ A B O U T _ L I N K
-task_insert_meme_about_link = PostgresOperator(
-    task_id='insert_meme_about_link',
+### T A S K _ I N S E R T _ M E M E _ L I N K
+task_insert_meme_link = PostgresOperator(
+    task_id='insert_meme_link',
     dag=pipeline1c,
     postgres_conn_id='postgres_default',
-    sql='insert_meme_about_link.sql',
+    sql='insert_meme_link.sql',
     trigger_rule='none_failed',
     autocommit=True
 )
 
-### T A S K _ I N S E R T _ M E M E _ O R I G I N _ L I N K
-task_insert_meme_origin_link = PostgresOperator(
-    task_id='insert_meme_origin_link',
-    dag=pipeline1c,
-    postgres_conn_id='postgres_default',
-    sql='insert_meme_origin_link.sql',
-    trigger_rule='none_failed',
-    autocommit=True
-)
-
-### T A S K _ I N S E R T _ M E M E _ S P R E A D _ L I N K
-task_insert_meme_spread_link = PostgresOperator(
-    task_id='insert_meme_spread_link',
-    dag=pipeline1c,
-    postgres_conn_id='postgres_default',
-    sql='insert_meme_spread_link.sql',
-    trigger_rule='none_failed',
-    autocommit=True
-)
-
-### T A S K _ I N S E R T _ M E M E _ N O T E X _ L I N K
-task_insert_meme_notex_link = PostgresOperator(
-    task_id='insert_meme_notex_link',
-    dag=pipeline1c,
-    postgres_conn_id='postgres_default',
-    sql='insert_meme_notex_link.sql',
-    trigger_rule='none_failed',
-    autocommit=True
-)
-
-### T A S K _ I N S E R T _ M E M E _ S E A R C H I N T _ L I N K
-task_insert_meme_searchint_link = PostgresOperator(
-    task_id='insert_meme_searchint_link',
-    dag=pipeline1c,
-    postgres_conn_id='postgres_default',
-    sql='insert_meme_searchint_link.sql',
-    trigger_rule='none_failed',
-    autocommit=True
-)
-
-### T A S K _ I N S E R T _ M E M E _ E X T R E F _ L I N K
-task_insert_meme_extref_link = PostgresOperator(
-    task_id='insert_meme_extref_link',
-    dag=pipeline1c,
-    postgres_conn_id='postgres_default',
-    sql='insert_meme_extref_link.sql',
-    trigger_rule='none_failed',
-    autocommit=True
-)
 
 
 ### E N D _ T A S K 
@@ -301,5 +263,4 @@ end = DummyOperator(
 
 # order of tasks
 task_select_link >> task_five >> task_emptiness_chk >> task_format >> task_collect_links >> task_link_query >> task_insert_link
-task_insert_link >> task_insert_meme_about_link >> task_insert_meme_origin_link >> task_insert_meme_spread_link >> task_insert_meme_notex_link
-task_insert_meme_notex_link >> task_insert_meme_searchint_link >> task_insert_meme_extref_link >> end
+task_insert_link >> task_insert_meme_link >> end
