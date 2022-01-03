@@ -10,6 +10,8 @@ from airflow.operators.python_operator import PythonOperator, BranchPythonOperat
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.postgres_operator import PostgresOperator
 import glob
+import re
+import numpy as np
 
 
 default_args_dict = {
@@ -33,13 +35,13 @@ pipeline1c = DAG(
 )
 
 # get the latest flattened.csv file
-def get_latest_flattened_csv():
-    csv_files = glob.glob("/opt/airflow/dags/*_flattened.csv")
+def get_latest_csv(name):
+    csv_files = glob.glob(f"/opt/airflow/dags/*_{name}.csv")
     times = []
     for file in csv_files:
-        times.append(int(file.split("/opt/airflow/dags/")[1].split("_flattened.csv")[0]))
+        times.append(int(file.split("/opt/airflow/dags/")[1].split(f"_{name}.csv")[0]))
     latest_time = max(times)
-    latest_file = "/opt/airflow/dags/" + str(latest_time) + "_flattened.csv"
+    latest_file = f"/opt/airflow/dags/" + str(latest_time) + f"_{name}.csv"
     return latest_file
 
 
@@ -47,7 +49,7 @@ def get_latest_flattened_csv():
 ### T A S K _ S E L E C T _ L I N K 
 # select all categories and delete high level duplicates
 def _select_link(epoch: int, output_folder: str):
-    df = pd.read_csv(get_latest_flattened_csv())
+    df = pd.read_csv(get_latest_csv("flattened"))
     #df = df[df.Category!="Meme"]
     df = df[['Title', 'URL', 'TimeUpdated', 'Category', 'Image', 'TimeAdded',
              'Keywords', 'Parent', 'SocialMediaDescription', 'Status', 'Origin', 'Year']]
@@ -102,13 +104,7 @@ task_emptiness_chk = BranchPythonOperator(
 
 
 ### T A S K _ F O R M A T
-# format the time fields (time_added,time_updated)
 # format the string and int fields (.astype)
-
-# convert epoch time to readable date time
-def format_time(col_name):
-   formatted_date_time=pd.to_datetime(col_name.apply(datetime.datetime.fromtimestamp))
-   return formatted_date_time
 
 def repair_string(df, col_name):
     df[col_name] = df[col_name].astype("str")
@@ -121,20 +117,10 @@ def _format_fields(epoch: int, output_folder: str):
     df = pd.read_csv(f'{output_folder}/{str(epoch)}_link.csv')
     df["Title"] = df["Title"].astype("str")
     df["URL"] = df["URL"].astype("str")
-    # time:
-    df['TimeUpdated'] = df['TimeUpdated'].fillna(-2208988800)
-    df['TimeUpdated'] = format_time(df['TimeUpdated'])
-    df['TimeAdded'] = df['TimeAdded'].fillna(-2208988800)
-    df['TimeAdded'] = format_time(df['TimeAdded'])
-    # int:
-    df['Year'] = df['Year'].fillna(1000).astype("int64")
     # remove bad symbols from string objects:
-    columns = ['Title', 'URL', 'Category', 'Image',
-             'Keywords', 'Parent', 'SocialMediaDescription', 'Status', 'Origin']
+    columns = ['Title', 'URL', 'Category', 'Parent', 'SocialMediaDescription']
     for col in columns: df[col] = repair_string(df,col)
-    df = df[['URL','Title', 'Category', 'TimeUpdated', 'Image', 'TimeAdded', 
-            'Keywords', 'Parent', 'SocialMediaDescription', 'Status', 'Origin', 'Year']]
-    df["Keywords"] = df.apply(lambda row: str(row["Keywords"]).replace("[","").replace("]","").strip(),axis=1)
+    df = df[["URL", "Title", "Category", "Parent", "SocialMediaDescription"]]
     df = df.drop_duplicates()
     df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_link.csv',index=False)
 
@@ -142,6 +128,55 @@ task_format = PythonOperator(
     task_id='format_fields',
     dag=pipeline1c,
     python_callable=_format_fields,
+    op_kwargs={
+        'epoch': '{{ execution_date.int_timestamp }}',
+        "output_folder": "/opt/airflow/dags"
+    },
+    trigger_rule='all_success',
+)
+
+
+### T A S K _ C O L L E C T _ L I N K S
+def matched_string(pattern,string):
+    result = re.match(pattern,string)
+    if result: return(string)
+    else: return("")
+
+def find_cat(string):
+    categories = {"culture()": "Culture", "event()": "Event", "meme()": "Meme", 
+                  "person()": "Person", "site()": "Site", "subculture()": "Subculture"}
+    for pattern in categories.keys():
+        result = re.match(pattern,string)
+        if result: return(categories[pattern])
+        else: return("Other")
+
+def _collect_links(epoch: int, output_folder: str):
+    df = pd.read_csv(f'{output_folder}/{str(epoch)}_link.csv')
+    df = df[["URL","Title","Category","Parent","SocialMediaDescription"]]
+    about_links = pd.read_csv(get_latest_csv("meme_about_link"))
+    origin_links = pd.read_csv(get_latest_csv("meme_origin_link"))
+    spread_links = pd.read_csv(get_latest_csv("meme_spread_link"))
+    notex_links = pd.read_csv(get_latest_csv("meme_notex_link"))
+    searchint_links = pd.read_csv(get_latest_csv("meme_searchint_link"))
+    extref_links = pd.read_csv(get_latest_csv("meme_extref_link"))
+    all_links = about_links.append(origin_links).append(spread_links).append(notex_links).append(searchint_links).append(extref_links)
+    missing_links = all_links[~all_links["Link"].isin(df["URL"])]
+    missing_links["URL"] = missing_links["Link"]
+    missing_links["Title"] = missing_links["LinkName"]
+    missing_links["Parent"] = np.NAN
+    missing_links["SocialMediaDescription"] = np.NAN
+    missing_links["Category"] = missing_links.apply(lambda row: 
+        find_cat(str(row["Link"]).split("https://knowyourmeme.com/")[-1].split("memes/")[-1].split("/")[0]),axis=1)
+    missing_links = missing_links[["URL","Title","Category","Parent","SocialMediaDescription"]]
+    missing_links.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_link.csv',index=False)
+    df = df.append(missing_links)
+    df = df.drop_duplicates()
+    df.to_csv(path_or_buf=f'{output_folder}/{str(epoch)}_link.csv',index=False)
+
+task_collect_links = PythonOperator(
+    task_id='collect_links',
+    dag=pipeline1c,
+    python_callable=_collect_links,
     op_kwargs={
         'epoch': '{{ execution_date.int_timestamp }}',
         "output_folder": "/opt/airflow/dags"
@@ -161,15 +196,8 @@ def _link_query(epoch: int, output_folder: str):
             title = row['Title']
             url = row['URL']
             category = row['Category']
-            time_updated = row['TimeUpdated']
-            image = row['Image']
-            time_added = row['TimeAdded']
-            keywords = row['Keywords']
             parent = row['Parent']
             social_media_description = row['SocialMediaDescription']
-            status = row['Status']
-            origin = row['Origin']
-            year = row['Year']
 
             f.write(
                 "INSERT INTO LINK VALUES ("
@@ -199,6 +227,8 @@ task_insert_link = PostgresOperator(
     trigger_rule='none_failed',
     autocommit=True
 )
+
+
 
 ### T A S K _ I N S E R T _ M E M E _ A B O U T _ L I N K
 task_insert_meme_about_link = PostgresOperator(
@@ -270,6 +300,6 @@ end = DummyOperator(
 
 
 # order of tasks
-task_select_link >> task_five >> task_emptiness_chk >> task_format >> task_link_query >> task_insert_link
+task_select_link >> task_five >> task_emptiness_chk >> task_format >> task_collect_links >> task_link_query >> task_insert_link
 task_insert_link >> task_insert_meme_about_link >> task_insert_meme_origin_link >> task_insert_meme_spread_link >> task_insert_meme_notex_link
 task_insert_meme_notex_link >> task_insert_meme_searchint_link >> task_insert_meme_extref_link >> end
